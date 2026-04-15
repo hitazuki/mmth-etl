@@ -1,6 +1,6 @@
 # MMTH ETL
 
-MMTH ETL 是 [mementomori-helper](https://github.com/small-thinking/mementomori-helper)
+MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helper)
 的日志转换工具集，用于解析和处理游戏日志数据。
 
 ## 项目概述
