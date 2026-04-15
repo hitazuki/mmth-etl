@@ -1,0 +1,89 @@
+# CLAUDE.md
+
+Claude Code 开发指南
+
+## 项目简介
+
+MMTH ETL - mementomori-helper的日志处理工具
+
+## 开发命令
+
+```bash
+# 构建
+go build -o mmth_etl .
+
+# 运行
+./mmth_etl <日志文件路径>
+
+# 测试
+go test ./... -v
+```
+
+## 规范
+
+### Git Commit
+
+使用约定式提交（Conventional Commits）：
+
+```text
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**type 类型：**
+
+- `feat`: 新功能
+- `fix`: 修复
+- `docs`: 文档
+- `style`: 格式（不影响代码运行的变动）
+- `refactor`: 重构
+- `test`: 测试
+- `chore`: 构建/工具
+
+**示例：**
+
+```text
+feat(parser): add support for new log format
+
+Add parser for v2 log format with timestamp prefix.
+
+Closes #123
+```
+
+### Go 代码规范
+
+- 使用 `gofmt` 格式化代码
+- 使用 `go vet` 静态分析
+- 使用 `staticcheck` 代码检查
+- 函数/结构体需添加文档注释
+- 错误处理：优先返回错误而非 panic
+
+**检查命令：**
+
+```bash
+gofmt -l .
+go vet ./...
+staticcheck ./...
+```
+
+### Markdown 规范
+
+- 使用 VS Code 内置 Markdown 检查或 npx markdownlint-cli 检查
+- 文件末尾保留一个空行
+- 标题前后空行
+- 代码块指定语言
+
+## 目录结构
+
+```text
+├── *.go          # Go 源码
+├── go.mod        # 模块定义
+├── CLAUDE.md     # 本文件
+├── README.md     # 项目说明
+├── data/         # 输出数据（gitignore）
+├── logs/         # 日志文件（gitignore）
+└── scripts/      # 辅助脚本
+```

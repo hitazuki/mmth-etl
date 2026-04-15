@@ -1,0 +1,395 @@
+package main
+
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+// ParsedLog 表示解析后的日志结构
+type ParsedLog struct {
+	RawLine   string // 原始行内容
+	Timestamp string // 时间戳
+	Character string // 角色名
+	Body      string // 日志主体
+	IsValid   bool   // 格式是否有效
+}
+
+// parseLogLine 解析单行日志，提取通用信息
+// 统一解析 "[时间] [名字] 日志主体" 格式，供后续处理复用
+func parseLogLine(line string) ParsedLog {
+	result := ParsedLog{RawLine: line}
+
+	// 解析JSON格式的日志
+	var logEntry struct {
+		Log  string `json:"log"`
+		Time string `json:"time"`
+	}
+	if err := json.Unmarshal([]byte(line), &logEntry); err != nil {
+		return result
+	}
+
+	logContent := logEntry.Log
+
+	// 验证并提取 "[时间] [名字] 日志主体" 格式
+	timestamp, character, body := extractLogComponents(logContent)
+	if timestamp == "" {
+		return result
+	}
+
+	result.Timestamp = timestamp
+	result.Character = character
+	result.Body = body
+	result.IsValid = true
+
+	return result
+}
+
+// extractLogComponents 从日志内容中提取时间戳、角色名和日志主体
+// 返回: (timestamp, character, body)
+func extractLogComponents(logContent string) (string, string, string) {
+	logContent = strings.TrimSpace(logContent)
+
+	// 检查基本格式：必须以 [ 开始
+	if !strings.HasPrefix(logContent, "[") {
+		return "", "", ""
+	}
+
+	// 提取时间戳：第一个方括号内的内容
+	timeRegex := regexp.MustCompile(`^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]`)
+	timeMatches := timeRegex.FindStringSubmatch(logContent)
+	if len(timeMatches) < 2 {
+		return "", "", ""
+	}
+	timestamp := timeMatches[1]
+
+	// 查找第一个 ] 后的内容
+	firstCloseIdx := strings.Index(logContent, "]")
+	if firstCloseIdx == -1 || firstCloseIdx+1 >= len(logContent) {
+		return "", "", ""
+	}
+
+	// 提取角色名和日志主体：第二个方括号内的内容
+	// 格式: [时间] [名字 (Lv等级)] 日志主体
+	remaining := strings.TrimSpace(logContent[firstCloseIdx+1:])
+
+	// 必须以 [ 开始
+	if !strings.HasPrefix(remaining, "[") {
+		return "", "", ""
+	}
+
+	// 找到第二个 ]
+	secondCloseIdx := strings.Index(remaining, "]")
+	if secondCloseIdx == -1 || secondCloseIdx <= 1 {
+		return "", "", ""
+	}
+
+	// 提取角色名（去掉等级部分）
+	nameSection := remaining[1:secondCloseIdx] // 去掉开头的 [
+	character := extractCharacterName(nameSection)
+
+	// 提取日志主体（第二个 ] 后面的内容）
+	if secondCloseIdx+1 >= len(remaining) {
+		return "", "", ""
+	}
+	body := strings.TrimSpace(remaining[secondCloseIdx+1:])
+
+	if character == "" || body == "" {
+		return "", "", ""
+	}
+
+	return timestamp, character, body
+}
+
+// extractCharacterName 从名字部分提取角色名（去掉等级）
+// 输入: "角色名 (Lv100)" 输出: "角色名"
+func extractCharacterName(nameSection string) string {
+	nameSection = strings.TrimSpace(nameSection)
+
+	// 去掉等级部分 (Lvxxx)
+	if idx := strings.Index(nameSection, "(Lv"); idx != -1 {
+		return strings.TrimSpace(nameSection[:idx])
+	}
+
+	return nameSection
+}
+
+// isValidSource 检查日志主体是否可以作为钻石来源
+// 返回 true 如果不是以下类型：
+// - 物品变动日志（以"Name:"开头）
+// - 挑战记录（以"Challenge"开头）
+// - 错误日志（以"OnError"开头）
+func isValidSource(body string) bool {
+	if strings.HasPrefix(body, "Name:") {
+		return false
+	}
+	if strings.HasPrefix(body, "Challenge") {
+		return false
+	}
+	if strings.HasPrefix(body, "OnError") {
+		return false
+	}
+	return true
+}
+
+// parseDiamondLine 从已解析的日志中提取钻石记录
+func parseDiamondLine(parsed ParsedLog, lastSource string) *DiamondRecord {
+	if !parsed.IsValid {
+		return nil
+	}
+
+	body := parsed.Body
+
+	// 查找获取钻石的记录
+	if matches := diamondGainRegex.FindStringSubmatch(body); len(matches) > 1 {
+		amount, _ := strconv.Atoi(matches[1])
+		return &DiamondRecord{
+			Character: parsed.Character,
+			Timestamp: parsed.Timestamp,
+			Amount:    amount,
+			Type:      "gain",
+			Source:    lastSource,
+		}
+	}
+
+	// 查找消耗钻石的记录
+	if matches := diamondConsumeRegex.FindStringSubmatch(body); len(matches) > 1 {
+		amount, _ := strconv.Atoi(matches[1])
+		return &DiamondRecord{
+			Character: parsed.Character,
+			Timestamp: parsed.Timestamp,
+			Amount:    amount,
+			Type:      "consume",
+			Source:    lastSource,
+		}
+	}
+
+	return nil
+}
+
+// readTimestampAt 读取指定偏移处的日志时间戳
+// 从日志内容中提取时间，格式与 parseLogLine 一致（本地时间格式）
+func readTimestampAt(file *os.File, offset int64) (string, error) {
+	_, err := file.Seek(offset, 0)
+	if err != nil {
+		return "", err
+	}
+
+	reader := bufio.NewReader(file)
+	line, err := reader.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+
+	line = strings.TrimSpace(line)
+	if line == "" {
+		return "", fmt.Errorf("空行")
+	}
+
+	// 从日志内容中提取时间，与 parseLogLine 保持一致
+	var logEntry struct {
+		Log string `json:"log"`
+	}
+	if err := json.Unmarshal([]byte(line), &logEntry); err != nil {
+		return "", err
+	}
+
+	// 提取 [YYYY-MM-DD HH:MM:SS] 格式的时间
+	timeRegex := regexp.MustCompile(`^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]`)
+	matches := timeRegex.FindStringSubmatch(logEntry.Log)
+	if len(matches) < 2 {
+		return "", fmt.Errorf("无法提取时间戳")
+	}
+
+	return matches[1], nil
+}
+
+// findLineStart 向前查找最近的换行符，返回下一行的起始位置
+// 确保二分查找定位到行首，避免从行中间开始读取
+func findLineStart(file *os.File, pos int64) int64 {
+	if pos <= 0 {
+		return 0
+	}
+
+	// 向前读取最多 4KB（足够容纳多行）
+	const bufSize = 4096
+	start := pos - bufSize
+	if start < 0 {
+		start = 0
+	}
+
+	_, err := file.Seek(start, 0)
+	if err != nil {
+		return 0
+	}
+
+	buf := make([]byte, int(pos-start))
+	n, _ := file.Read(buf)
+
+	// 从后向前找换行符
+	for i := n - 1; i >= 0; i-- {
+		if buf[i] == '\n' {
+			return start + int64(i) + 1
+		}
+	}
+
+	// 没找到，继续向前或返回文件开头
+	if start > 0 {
+		return findLineStart(file, start)
+	}
+	return 0
+}
+
+// findStartPosition 二分查找定位第一个时间戳 > lastLogTime 的字节位置
+// 对于上百MB的文件，只需约 20 次读取即可定位（log2(100MB/4KB) ≈ 15）
+func findStartPosition(file *os.File, lastLogTime string) (int64, error) {
+	if lastLogTime == "" {
+		return 0, nil // 从头开始处理
+	}
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
+	fileSize := fileInfo.Size()
+	if fileSize == 0 {
+		return 0, nil
+	}
+
+	// 快速边界检查：读取文件末尾附近，检查是否有新记录
+	// 从文件末尾向前找行首，确保读取完整行
+	endPos := fileSize - 4096
+	if endPos < 0 {
+		endPos = 0
+	}
+	endPos = findLineStart(file, endPos) // 确保从行首开始读取
+	lastTimeInFile, err := readTimestampAt(file, endPos)
+	if err == nil && lastTimeInFile <= lastLogTime {
+		return -1, nil // 无新记录，无需处理
+	}
+
+	// 快速边界检查：读取文件开头，如果第一条 > lastLogTime，处理整个文件
+	firstTimeInFile, err := readTimestampAt(file, 0)
+	if err == nil && firstTimeInFile > lastLogTime {
+		return 0, nil // 处理整个文件
+	}
+
+	// 二分查找：找到第一个时间戳 > lastLogTime 的位置
+	left, right := int64(0), fileSize
+	var result int64 = fileSize
+
+	for left < right {
+		mid := (left + right) / 2
+		// 调整到行首位置，确保读取完整行
+		lineStart := findLineStart(file, mid)
+
+		// 避免死循环：如果行首位置没有前进
+		if lineStart <= left && mid > left {
+			left = mid + 1
+			continue
+		}
+
+		timestamp, err := readTimestampAt(file, lineStart)
+		if err != nil {
+			// 读取失败，可能是损坏行，向右调整
+			left = mid + 1
+			continue
+		}
+
+		if timestamp > lastLogTime {
+			// 这个位置可能是目标，记录并继续向左找更小的
+			result = lineStart
+			right = mid
+		} else {
+			// 时间戳 <= lastLogTime，向右查找
+			left = mid + 1
+		}
+	}
+
+	return result, nil
+}
+
+// processStream 流式处理日志（内存友好，适合 GB 级文件）
+// 直接将记录添加到聚合器，不缓存所有记录
+func (p *LogProcessor) processStream(agg *Aggregator) string {
+	// 打开日志文件
+	file, err := os.Open(p.inputLogPath)
+	if err != nil {
+		log.Fatalf("打开日志文件失败: %v", err)
+	}
+	defer file.Close()
+
+	// 二分查找定位起始位置
+	startPos, err := findStartPosition(file, p.checkpoint)
+	if err != nil {
+		log.Printf("定位起始位置失败: %v，从头开始处理", err)
+		startPos = 0
+	}
+	if startPos < 0 {
+		log.Println("无新记录需要处理")
+		return p.checkpoint
+	}
+
+	// 跳转到起始位置
+	_, err = file.Seek(startPos, 0)
+	if err != nil {
+		log.Fatalf("文件定位失败: %v", err)
+	}
+
+	// 来源上下文（按角色隔离，处理期间必须保留）
+	lastSourceByCharacter := make(map[string]string)
+
+	// 分块读取：256KB 缓冲区
+	scanner := bufio.NewScanner(file)
+	buf := make([]byte, 0, 256*1024)
+	scanner.Buffer(buf, 1024*1024)
+
+	var lastLogTime string
+	lineCount := 0
+	newRecordCount := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lineCount++
+
+		// 解析日志行
+		parsed := parseLogLine(line)
+		if !parsed.IsValid {
+			continue
+		}
+
+		// 时间戳二次校验（防止定位偏差或时间乱序）
+		if p.checkpoint != "" && parsed.Timestamp <= p.checkpoint {
+			continue
+		}
+
+		// 更新来源上下文
+		if isValidSource(parsed.Body) {
+			lastSourceByCharacter[parsed.Character] = parsed.Body
+		}
+
+		// 提取钻石记录
+		record := parseDiamondLine(parsed, lastSourceByCharacter[parsed.Character])
+		if record != nil {
+			// 立即添加到聚合器，record 在此作用域结束后可被 GC 回收
+			agg.AddRecord(*record)
+			newRecordCount++
+			lastLogTime = record.Timestamp
+		}
+		// line、parsed 在此作用域结束后可被 GC 回收
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("读取日志文件时出错: %v", err)
+	}
+
+	log.Printf("扫描了 %d 行，新增 %d 条记录", lineCount, newRecordCount)
+
+	return lastLogTime
+}
