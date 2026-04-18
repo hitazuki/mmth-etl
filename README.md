@@ -34,8 +34,13 @@ MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helpe
 ### 命令行参数
 
 ```bash
-./mmth_etl <日志文件路径>
+./mmth_etl [-output <输出目录>] <日志文件路径>
 ```
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `-output` | 输出目录路径 | `./data` |
+| `<日志文件路径>` | 待处理的日志文件路径 | 必填 |
 
 ### 构建和运行
 
@@ -43,11 +48,14 @@ MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helpe
 # 构建
 go build -o mmth_etl .
 
-# 运行（指定日志文件）
-./mmth_etl ./logs/test2w-json.log
+# 运行（使用默认输出目录）
+./mmth_etl ./logs/game_log.json
+
+# 运行（指定输出目录）
+./mmth_etl -output ./output ./logs/game_log.json
 
 # 或者直接运行
-go run . ./logs/test2w-json.log
+go run . ./logs/game_log.json
 ```
 
 ### 运行测试
@@ -81,20 +89,21 @@ mmth_etl/
     └── extract_by_date.py          # 按日期提取日志的脚本
 ```
 
-## 配置文件
+## 配置
 
-配置通过 `main.go` 中的常量定义：
+输出目录通过命令行参数 `-output` 指定：
 
-```go
-outputJSONPath := "./data/diamond_stats.json"       // 统计结果输出文件
-stateFilePath := "./data/mmth_etl_state.json"       // 检查点文件（记录上次处理时间）
+```bash
+# 默认输出到 ./data 目录
+./mmth_etl ./logs/game_log.json
+
+# 指定自定义输出目录
+./mmth_etl -output /path/to/output ./logs/game_log.json
 ```
 
-日志源文件路径通过命令行参数传入：
-
-```go
-inputLogPath := os.Args[1]  // 第一个命令行参数
-```
+输出文件：
+- `<output>/diamond_stats.json` - 统计结果
+- `<output>/mmth_etl_state.json` - 检查点文件
 
 ## 命名约定
 
