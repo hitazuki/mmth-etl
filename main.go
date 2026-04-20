@@ -23,6 +23,7 @@ func main() {
 	// 配置
 	outputJSONPath := filepath.Join(*outputDir, "diamond_stats.json")
 	caveJSONPath := filepath.Join(*outputDir, "cave_stats.json")
+	challengeJSONPath := filepath.Join(*outputDir, "challenge_stats.json")
 	stateFilePath := filepath.Join(*outputDir, "mmth_etl_state.json")
 
 	processor := &LogProcessor{
@@ -41,6 +42,9 @@ func main() {
 	// 创建洞穴聚合器
 	caveAgg := NewCaveAggregator()
 
+	// 创建挑战聚合器
+	challengeAgg := NewChallengeAggregator()
+
 	// 加载已有统计（增量处理）
 	if existingStats := loadExistingStats(outputJSONPath); existingStats != nil {
 		agg.LoadExistingStats(existingStats)
@@ -50,17 +54,21 @@ func main() {
 	// 加载已有洞穴统计（增量处理）
 	caveAgg.LoadExistingStats(caveJSONPath)
 
+	// 加载已有挑战统计（增量处理）
+	challengeAgg.LoadExistingStats(challengeJSONPath)
+
 	// 流式处理日志（内存友好）
-	lastLogTime := processor.processStream(agg, caveAgg)
+	lastLogTime := processor.processStream(agg, caveAgg, challengeAgg)
 
 	// 检查是否有新记录
-	if agg.RecordCount() == 0 && caveAgg.RecordCount() == 0 {
+	if agg.RecordCount() == 0 && caveAgg.RecordCount() == 0 && challengeAgg.RecordCount() == 0 {
 		fmt.Println("没有新的记录需要处理")
 		return
 	}
 
 	fmt.Printf("新增 %d 条钻石记录\n", agg.RecordCount())
 	fmt.Printf("新增 %d 条洞穴记录\n", caveAgg.RecordCount())
+	fmt.Printf("新增 %d 条挑战记录\n", challengeAgg.RecordCount())
 
 	// 输出统计结果
 	if agg.RecordCount() > 0 {
@@ -72,6 +80,12 @@ func main() {
 	if caveAgg.RecordCount() > 0 {
 		caveStats := caveAgg.ToMap()
 		SaveCaveStats(caveStats, caveJSONPath)
+	}
+
+	// 输出挑战统计结果
+	if challengeAgg.RecordCount() > 0 {
+		challengeStats := challengeAgg.ToMap()
+		SaveChallengeStats(challengeStats, challengeJSONPath)
 	}
 
 	// 更新状态

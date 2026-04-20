@@ -140,12 +140,38 @@ func isValidSource(body string) bool {
 	return true
 }
 
-// parseDiamondLine 从已解析的日志中提取钻石记录
-func parseDiamondLine(parsed ParsedLog, lastSource string) *DiamondRecord {
-	if !parsed.IsValid {
-		return nil
+// LogType 日志类型枚举
+type LogType int
+
+const (
+	LogTypeNone      LogType = iota // 未知类型
+	LogTypeDiamond                   // 钻石记录
+	LogTypeCave                      // 洞穴记录
+	LogTypeChallenge                 // 挑战记录
+)
+
+// identifyLogType 识别日志类型（一次扫描确定类型）
+func identifyLogType(body string) LogType {
+	// 检查钻石记录（包含 Diamonds 关键字）
+	if strings.Contains(body, "Diamonds(None)") {
+		return LogTypeDiamond
 	}
 
+	// 检查洞穴记录（包含洞穴关键字）
+	if caveEnterRegex.MatchString(body) || caveFinishRegex.MatchString(body) || caveErrorRegex.MatchString(body) {
+		return LogTypeCave
+	}
+
+	// 检查挑战记录（以 Challenge 开头且包含状态关键字）
+	if strings.HasPrefix(body, "Challenge") && (challengeSuccessRegex.MatchString(body) || challengeFailedRegex.MatchString(body)) {
+		return LogTypeChallenge
+	}
+
+	return LogTypeNone
+}
+
+// parseDiamondLine 从已解析的日志中提取钻石记录
+func parseDiamondLine(parsed ParsedLog, lastSource string) *DiamondRecord {
 	body := parsed.Body
 
 	// 查找获取钻石的记录
@@ -179,10 +205,6 @@ func parseDiamondLine(parsed ParsedLog, lastSource string) *DiamondRecord {
 
 // parseCaveLine 从已解析的日志中提取洞穴记录
 func parseCaveLine(parsed ParsedLog) *CaveRecord {
-	if !parsed.IsValid {
-		return nil
-	}
-
 	body := parsed.Body
 	date := parsed.Timestamp[:10]
 
@@ -215,6 +237,41 @@ func parseCaveLine(parsed ParsedLog) *CaveRecord {
 			Status:      CaveStatusStarted,
 			Date:        date,
 		}
+	}
+
+	return nil
+}
+
+// parseChallengeLine 从已解析的日志中提取挑战记录
+func parseChallengeLine(parsed ParsedLog) *ChallengeRecord {
+	body := parsed.Body
+
+	record := &ChallengeRecord{
+		Character:   parsed.Character,
+		Timestamp:   parsed.Timestamp,
+		PreciseTime: parsed.PreciseTime,
+	}
+
+	// 检测状态：优先检测成功，否则为失败
+	if challengeSuccessRegex.MatchString(body) {
+		record.Status = ChallengeStatusSuccess
+	} else {
+		record.Status = ChallengeStatusFailed
+	}
+
+	// 尝试匹配主线挑战: "Challenge 43-6 boss one time：..."
+	if matches := challengeQuestRegex.FindStringSubmatch(body); len(matches) > 1 {
+		record.Type = ChallengeTypeQuest
+		record.Level = matches[1]
+		return record
+	}
+
+	// 尝试匹配塔挑战: "Challenge Tower of Amber 1303 layer one time：..."
+	if matches := challengeTowerRegex.FindStringSubmatch(body); len(matches) > 2 {
+		record.Type = ChallengeTypeTower
+		record.TowerType = TowerType(matches[1])
+		record.Level = matches[2]
+		return record
 	}
 
 	return nil
@@ -360,7 +417,7 @@ func findStartPosition(file *os.File, lastLogTime string) (int64, error) {
 
 // processStream 流式处理日志（内存友好，适合 GB 级文件）
 // 直接将记录添加到聚合器，不缓存所有记录
-func (p *LogProcessor) processStream(agg *Aggregator, caveAgg *CaveAggregator) string {
+func (p *LogProcessor) processStream(agg *Aggregator, caveAgg *CaveAggregator, challengeAgg *ChallengeAggregator) string {
 	// 打开日志文件
 	file, err := os.Open(p.inputLogPath)
 	if err != nil {
@@ -413,33 +470,45 @@ func (p *LogProcessor) processStream(agg *Aggregator, caveAgg *CaveAggregator) s
 			continue
 		}
 
-		// 更新来源上下文
+		// 更新来源上下文（非特殊日志才作为来源）
 		if isValidSource(parsed.Body) {
 			lastSourceByCharacter[parsed.Character] = parsed.Body
 		}
 
-		// 提取钻石记录，来源为空时使用 "none"
-		source := lastSourceByCharacter[parsed.Character]
-		if source == "" {
-			source = "none"
-		}
-		record := parseDiamondLine(parsed, source)
-		if record != nil {
-			// 立即添加到聚合器，record 在此作用域结束后可被 GC 回收
-			agg.AddRecord(*record)
-			newRecordCount++
-			// 使用精确时间作为检查点
-			if record.PreciseTime != "" {
-				lastLogTime = record.PreciseTime
-			} else {
-				lastLogTime = record.Timestamp
+		// 识别日志类型并分发给对应处理函数
+		logType := identifyLogType(parsed.Body)
+		switch logType {
+		case LogTypeDiamond:
+			// 提取钻石记录，来源为空时使用 "none"
+			source := lastSourceByCharacter[parsed.Character]
+			if source == "" {
+				source = "none"
 			}
-		}
+			record := parseDiamondLine(parsed, source)
+			if record != nil {
+				agg.AddRecord(*record)
+				newRecordCount++
+				// 使用精确时间作为检查点
+				if record.PreciseTime != "" {
+					lastLogTime = record.PreciseTime
+				} else {
+					lastLogTime = record.Timestamp
+				}
+			}
 
-		// 提取洞穴记录
-		caveRecord := parseCaveLine(parsed)
-		if caveRecord != nil {
-			caveAgg.AddRecord(*caveRecord)
+		case LogTypeCave:
+			// 提取洞穴记录
+			caveRecord := parseCaveLine(parsed)
+			if caveRecord != nil {
+				caveAgg.AddRecord(*caveRecord)
+			}
+
+		case LogTypeChallenge:
+			// 提取挑战记录
+			challengeRecord := parseChallengeLine(parsed)
+			if challengeRecord != nil {
+				challengeAgg.AddRecord(*challengeRecord)
+			}
 		}
 		// line、parsed 在此作用域结束后可被 GC 回收
 	}

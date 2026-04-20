@@ -8,6 +8,7 @@ MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helpe
 
 - **钻石记录处理**：跟踪游戏中钻石的获取和消耗情况，为每个角色提供每日、每周、每月和总计的统计信息
 - **时空洞窟追踪**：识别洞窟任务执行状态（已执行/已完成/异常），按角色和日期统计
+- **战斗日志统计**：识别主线关卡和各种塔的挑战记录，统计尝试次数、通关状态和最后挑战时间
 
 ## 功能特点
 
@@ -16,9 +17,11 @@ MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helpe
 - **多维度统计**：计算每日、每周、每月和总计的钻石统计信息
 - **来源追踪**：按来源统计钻石获取和消耗情况（自动排除物品变动、挑战记录、错误日志）
 - **时空洞窟追踪**：识别洞窟日志关键字，统计每日洞窟任务执行状态
+- **战斗日志统计**：识别主线关卡和塔挑战记录，支持5种塔类型
 - **角色隔离**：每个角色的钻石来源和洞窟状态独立追踪
 - **内存优化**：可选保留详细记录（默认关闭以节省内存），流式处理不缓存完整数据集
 - **自动目录创建**：输出目录不存在时自动创建
+- **日志类型识别**：一次扫描识别日志类型，分发到对应处理函数
 
 ## 架构
 
@@ -88,6 +91,7 @@ mmth_etl/
 ├── data/               # 输出数据目录
 │   ├── diamond_stats.json          # 钻石统计结果
 │   ├── cave_stats.json             # 洞窟统计结果
+│   ├── challenge_stats.json        # 战斗日志统计结果
 │   └── mmth_etl_state.json         # 检查点文件
 └── scripts/            # 工具脚本目录
     └── extract_by_date.py          # 按日期提取日志的脚本
@@ -109,6 +113,7 @@ mmth_etl/
 
 - `<output>/diamond_stats.json` - 钻石统计结果
 - `<output>/cave_stats.json` - 时空洞窟统计结果
+- `<output>/challenge_stats.json` - 战斗日志统计结果
 - `<output>/mmth_etl_state.json` - 检查点文件
 
 ## 命名约定
@@ -118,7 +123,9 @@ mmth_etl/
 - `main.go` - 主程序入口
 - `types.go` - 数据模型定义
 - `log_parser.go` - 日志解析器
-- `aggregator.go` - 聚合统计逻辑
+- `aggregator.go` - 钻石聚合统计逻辑
+- `cave_aggregator.go` - 洞窟聚合统计逻辑
+- `challenge_aggregator.go` - 战斗日志聚合统计逻辑
 - `checkpoint.go` - 检查点/状态管理
 
 ### 结构体命名（PascalCase）
@@ -175,6 +182,24 @@ mmth_etl/
 | `KeyNotFoundException` | 异常 (error) |
 
 每日状态优先级：异常 > 已完成 > 未完成
+
+### 战斗日志识别
+
+| 日志格式 | 类型 | 示例 |
+| --- | --- | --- |
+| `Challenge X-Y boss ...` | 主线关卡 | `Challenge 43-6 boss one time：You have triumphed.` |
+| `Challenge Tower of X N layer ...` | 塔挑战 | `Challenge Tower of Amber 1303 layer one time：You have triumphed.` |
+
+**塔类型**：Infinity, Azure, Crimson, Emerald, Amber
+
+**状态识别**：
+- `triumphed` → 已通关
+- `failed` → 未通关
+
+**统计内容**：
+- 尝试次数（attempts）
+- 是否通关（success）
+- 最后挑战时间（last_time）
 
 ### 来源追踪规则
 
@@ -264,6 +289,51 @@ mmth_etl/
 - `started` - 已执行但未完成
 - `finished` - 已完成
 - `error` - 异常
+
+### 战斗日志统计格式
+
+处理完成后，战斗统计结果保存到 `challenge_stats.json`，格式如下：
+
+```json
+{
+  "角色名": {
+    "quest": {
+      "43-6": {
+        "level": "43-6",
+        "attempts": 5,
+        "success": true,
+        "last_time": "2026-04-20 10:30:00"
+      }
+    },
+    "towers": {
+      "Infinity": {
+        "1840": {
+          "level": "1840",
+          "attempts": 1,
+          "success": true,
+          "last_time": "2026-04-20 11:00:00"
+        }
+      },
+      "Amber": {
+        "1303": {
+          "level": "1303",
+          "attempts": 3,
+          "success": false,
+          "last_time": "2026-04-20 12:00:00"
+        }
+      }
+    }
+  }
+}
+```
+
+**字段说明**：
+
+- `quest` - 主线关卡统计
+- `towers` - 塔挑战统计（按塔类型分组）
+- `attempts` - 尝试次数
+- `success` - 是否已通关
+- `last_time` - 最后挑战时间
 
 ## 增量处理机制
 
