@@ -90,11 +90,15 @@ staticcheck ./...
 ## 目录结构
 
 ```text
-├── *.go          # Go 源码
-├── go.mod        # 模块定义
-├── CLAUDE.md     # 本文件
-├── README.md     # 项目说明
-├── data/         # 输出数据（gitignore）
-├── logs/         # 日志文件（gitignore）
-└── scripts/      # 辅助脚本
+├── *.go              # Go 源码
+├── go.mod            # 模块定义
+├── CLAUDE.md         # 本文件
+├── README.md         # 项目说明
+├── data/             # 输出数据（gitignore）
+├── logs/             # 日志文件（gitignore）
+├── scripts/          # 辅助脚本
+└── .github/          # GitHub 配置
+    ├── workflows/    # CI/CD 工作流
+    │   └── release.yml
+    └── cliff.toml    # Changelog 配置
 ```

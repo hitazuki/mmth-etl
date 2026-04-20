@@ -43,8 +43,12 @@ mmth-etl/
 ├── storage/             # 存储模块
 │   ├── checkpoint.go    # 检查点管理
 │   └── file.go          # 文件读写
-└── utils/               # 工具模块
-    └── time.go          # 时间工具
+├── utils/               # 工具模块
+│   └── time.go          # 时间工具
+└── .github/             # GitHub 配置
+    ├── workflows/       # CI/CD 工作流
+    │   └── release.yml  # 发布构建
+    └── cliff.toml       # Changelog 配置
 ```
 
 ## 使用方法
@@ -66,11 +70,18 @@ mmth-etl/
 # 构建
 go build -o mmth_etl .
 
+# 构建时注入版本信息
+go build -ldflags="-s -w -X main.Version=1.0.0" -o mmth_etl .
+
 # 运行（使用默认输出目录）
 ./mmth_etl ./logs/game_log.json
 
 # 运行（指定输出目录）
 ./mmth_etl -output ./output ./logs/game_log.json
+
+# 查看版本
+./mmth_etl ./logs/game_log.json
+# 输出: MMTH ETL v1.0.0
 ```
 
 ### 运行测试
