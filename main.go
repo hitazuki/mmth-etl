@@ -10,12 +10,18 @@ import (
 	"path/filepath"
 )
 
+// 版本信息，构建时通过 ldflags 注入
+var Version = "dev"
+
 // 类型别名，语义化
 type DiamondAggregator = aggregator.ChangeAggregator
 type RuneTicketAggregator = aggregator.ChangeAggregator
 type UpgradePanaceaAggregator = aggregator.ChangeAggregator
 
 func main() {
+	// 显示版本信息
+	fmt.Printf("MMTH ETL v%s\n", Version)
+
 	// 命令行参数
 	outputDir := flag.String("output", "./data", "输出目录路径")
 	flag.Parse()

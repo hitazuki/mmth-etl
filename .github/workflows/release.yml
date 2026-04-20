@@ -1,0 +1,189 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., 1.0.0, leave empty to use git tag)'
+        required: false
+        type: string
+      draft:
+        description: 'Create as draft release'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  GO_VERSION: '1.24'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            binary_ext: '.exe'
+          - goos: windows
+            goarch: arm64
+            binary_ext: '.exe'
+          - goos: linux
+            goarch: amd64
+            binary_ext: ''
+          - goos: linux
+            goarch: arm64
+            binary_ext: ''
+          - goos: darwin
+            goarch: amd64
+            binary_ext: ''
+          - goos: darwin
+            goarch: arm64
+            binary_ext: ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [[ $GITHUB_REF == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          go build -ldflags="-s -w -X main.Version=${{ steps.version.outputs.version }}" \
+            -o mmth_etl${{ matrix.binary_ext }} .
+
+      - name: Create archive (Windows)
+        if: matrix.goos == 'windows'
+        run: |
+          ARCHIVE_NAME="mmth-etl-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          mkdir -p "${ARCHIVE_NAME}"
+          cp mmth_etl.exe "${ARCHIVE_NAME}/"
+          cp README.md "${ARCHIVE_NAME}/" 2>/dev/null || true
+          zip -r "${ARCHIVE_NAME}.zip" "${ARCHIVE_NAME}"
+          echo "archive_name=${ARCHIVE_NAME}.zip" >> $GITHUB_OUTPUT
+
+      - name: Create archive (Unix)
+        if: matrix.goos != 'windows'
+        run: |
+          ARCHIVE_NAME="mmth-etl-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          mkdir -p "${ARCHIVE_NAME}"
+          cp mmth_etl "${ARCHIVE_NAME}/"
+          chmod +x "${ARCHIVE_NAME}/mmth_etl"
+          cp README.md "${ARCHIVE_NAME}/" 2>/dev/null || true
+          tar -czf "${ARCHIVE_NAME}.tar.gz" "${ARCHIVE_NAME}"
+          echo "archive_name=${ARCHIVE_NAME}.tar.gz" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mmth-etl-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: mmth-etl-*
+          retention-days: 7
+
+  changelog:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: .github/cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+          GITHUB_REPO: ${{ github.repository }}
+
+  release:
+    needs: [build, changelog]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          pattern: mmth-etl-*
+          merge-multiple: true
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [[ $GITHUB_REF == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name || format('v{0}', steps.version.outputs.version) }}
+          name: MMTH ETL v${{ steps.version.outputs.version }}
+          draft: ${{ inputs.draft || false }}
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+          files: artifacts/*
+          body: |
+            ${{ needs.changelog.outputs.release_body }}
+
+            ## Downloads
+
+            | Platform | Architecture | Download |
+            | --- | --- | --- |
+            | Windows | x64 | `mmth-etl-${{ steps.version.outputs.version }}-windows-amd64.zip` |
+            | Windows | ARM64 | `mmth-etl-${{ steps.version.outputs.version }}-windows-arm64.zip` |
+            | Linux | x64 | `mmth-etl-${{ steps.version.outputs.version }}-linux-amd64.tar.gz` |
+            | Linux | ARM64 | `mmth-etl-${{ steps.version.outputs.version }}-linux-arm64.tar.gz` |
+            | macOS | Intel | `mmth-etl-${{ steps.version.outputs.version }}-darwin-amd64.tar.gz` |
+            | macOS | Apple Silicon | `mmth-etl-${{ steps.version.outputs.version }}-darwin-arm64.tar.gz` |
+
+            ## Usage
+
+            ```bash
+            # Linux/macOS
+            tar -xzf mmth-etl-*-linux-amd64.tar.gz
+            ./mmth_etl [-output <output_dir>] <log_file_path>
+
+            # Windows
+            # Extract the zip file
+            mmth_etl.exe [-output <output_dir>] <log_file_path>
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
