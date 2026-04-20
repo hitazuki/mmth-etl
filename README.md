@@ -27,12 +27,13 @@ MMTH ETL 是 [mementomori-helper](https://github.com/moonheart/mementomori-helpe
 
 应用程序遵循清晰的分离关注点架构：
 
-1. **数据解析** - `log_parser.go` 处理日志解析、二分查找定位、流式读取
-2. **统计分析** - `aggregator.go` 执行每日、每周、每月和总计的聚合计算
+1. **数据解析** - `log_parser.go` 处理日志解析、二分查找定位、流式读取、日志类型识别
+2. **钻石统计** - `aggregator.go` 执行每日、每周、每月和总计的聚合计算
 3. **洞窟统计** - `cave_aggregator.go` 处理时空洞窟状态统计
-4. **检查点管理** - `checkpoint.go` 管理断点状态（上次处理时间戳）
-5. **类型定义** - `types.go` 定义数据结构和正则表达式模式
-6. **主协调** - `main.go` 协调整合处理管道，支持可配置输出目录
+4. **战斗统计** - `challenge_aggregator.go` 处理主线关卡和塔挑战统计
+5. **检查点管理** - `checkpoint.go` 管理断点状态（上次处理时间戳）
+6. **类型定义** - `types.go` 定义数据结构和正则表达式模式
+7. **主协调** - `main.go` 协调整合处理管道，支持可配置输出目录
 
 ## 使用方法
 
@@ -77,24 +78,25 @@ go test ./log_parser_test.go -v
 
 ```text
 mmth_etl/
-├── main.go             # 主程序入口，接收命令行参数，协调处理流程
-├── types.go            # 数据结构和正则表达式模式定义
-├── log_parser.go       # 日志解析、二分查找定位、流式读取
-├── aggregator.go       # 钻石统计聚合计算（日/周/月/总计）
-├── cave_aggregator.go  # 时空洞窟状态统计
-├── checkpoint.go       # 断点状态管理
-├── CLAUDE.md           # Claude Code 开发指南
-├── README.md           # 项目文档
-├── go.mod              # Go 模块定义
-├── logs/               # 测试日志文件目录
-│   └── test*.log       # 测试用日志文件
-├── data/               # 输出数据目录
-│   ├── diamond_stats.json          # 钻石统计结果
-│   ├── cave_stats.json             # 洞窟统计结果
-│   ├── challenge_stats.json        # 战斗日志统计结果
-│   └── mmth_etl_state.json         # 检查点文件
-└── scripts/            # 工具脚本目录
-    └── extract_by_date.py          # 按日期提取日志的脚本
+├── main.go                  # 主程序入口，接收命令行参数，协调处理流程
+├── types.go                 # 数据结构和正则表达式模式定义
+├── log_parser.go            # 日志解析、二分查找定位、流式读取
+├── aggregator.go            # 钻石统计聚合计算（日/周/月/总计）
+├── cave_aggregator.go       # 时空洞窟状态统计
+├── challenge_aggregator.go  # 战斗日志统计
+├── checkpoint.go            # 断点状态管理
+├── CLAUDE.md                # Claude Code 开发指南
+├── README.md                # 项目文档
+├── go.mod                   # Go 模块定义
+├── logs/                    # 测试日志文件目录
+│   └── test*.log            # 测试用日志文件
+├── data/                    # 输出数据目录
+│   ├── diamond_stats.json   # 钻石统计结果
+│   ├── cave_stats.json      # 洞窟统计结果
+│   ├── challenge_stats.json # 战斗日志统计结果
+│   └── mmth_etl_state.json  # 检查点文件
+└── scripts/                 # 工具脚本目录
+    └── extract_by_date.py   # 按日期提取日志的脚本
 ```
 
 ## 配置
@@ -193,10 +195,12 @@ mmth_etl/
 **塔类型**：Infinity, Azure, Crimson, Emerald, Amber
 
 **状态识别**：
+
 - `triumphed` → 已通关
 - `failed` → 未通关
 
 **统计内容**：
+
 - 尝试次数（attempts）
 - 是否通关（success）
 - 最后挑战时间（last_time）
@@ -208,6 +212,8 @@ mmth_etl/
 - 只使用时间戳大于上次处理的日志
 
 ## 输出格式
+
+### 钻石统计格式
 
 处理完成后，统计结果保存到 `diamond_stats.json`，格式如下：
 
