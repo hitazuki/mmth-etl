@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"mmth-etl/aggregator"
+	"mmth-etl/i18n"
 	"mmth-etl/parser"
 	"mmth-etl/storage"
 	"mmth-etl/types"
@@ -15,17 +16,30 @@ import (
 	"strings"
 )
 
+// DynamicLanguageConfig holds configuration for dynamic language detection.
+type DynamicLanguageConfig struct {
+	Enabled         bool // Enable dynamic language detection
+	WindowSize      int  // Number of lines to analyze for language detection
+	SwitchThreshold int  // Minimum score difference to trigger language switch
+}
+
 // LogProcessor 日志处理器
 type LogProcessor struct {
 	inputLogPath string
 	checkpoint   string
+	i18nMgr      *i18n.Manager
+	detector     *i18n.Detector
+	dynamicLang  DynamicLanguageConfig
 }
 
-// NewLogProcessor 创建日志处理器
-func NewLogProcessor(inputLogPath, checkpoint string) *LogProcessor {
+// NewLogProcessor creates a new log processor.
+func NewLogProcessor(inputLogPath, checkpoint string, i18nMgr *i18n.Manager, dynamicCfg DynamicLanguageConfig) *LogProcessor {
 	return &LogProcessor{
 		inputLogPath: inputLogPath,
 		checkpoint:   checkpoint,
+		i18nMgr:      i18nMgr,
+		detector:     i18n.NewDetector(),
+		dynamicLang:  dynamicCfg,
 	}
 }
 
@@ -61,6 +75,20 @@ func (p *LogProcessor) Process(
 	// 来源上下文（按角色隔离）
 	lastSourceByCharacter := make(map[string]string)
 
+	// 动态语言检测 - 使用增量累加器（优化：避免重复匹配）
+	windowSize := p.dynamicLang.WindowSize
+	if windowSize <= 0 {
+		windowSize = 100
+	}
+	switchThreshold := p.dynamicLang.SwitchThreshold
+	if switchThreshold <= 0 {
+		switchThreshold = 5
+	}
+	var scoreAccumulator *i18n.ScoreAccumulator
+	if p.dynamicLang.Enabled {
+		scoreAccumulator = i18n.NewScoreAccumulator(p.detector, windowSize)
+	}
+
 	// 分块读取
 	scanner := bufio.NewScanner(file)
 	buf := make([]byte, 0, 256*1024)
@@ -69,6 +97,8 @@ func (p *LogProcessor) Process(
 	var lastLogTime string
 	lineCount := 0
 	newRecordCount := 0
+	languageSwitchCount := 0
+	checkInterval := windowSize / 2 // 检测间隔
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -80,12 +110,43 @@ func (p *LogProcessor) Process(
 		}
 
 		// 时间戳二次校验：跳过已处理的记录
-			// 使用 <= 跳过同秒记录，确保不重复计入
-			if p.checkpoint != "" && parsed.Timestamp != "" {
-				if parsed.Timestamp <= p.checkpoint {
-					continue
+		// 使用 <= 跳过同秒记录，确保不重复计入
+		if p.checkpoint != "" && parsed.Timestamp != "" {
+			if parsed.Timestamp <= p.checkpoint {
+				continue
+			}
+		}
+
+		// 动态语言检测 - 增量累加（优化：O(1)开销）
+		if p.dynamicLang.Enabled {
+			scoreAccumulator.AddLine(parsed.Body)
+
+			// 定期检查是否需要切换语言
+			if lineCount%checkInterval == 0 {
+				scores := scoreAccumulator.GetScores()
+				currentLang := p.i18nMgr.CurrentLanguage()
+
+				// 找出得分最高的语言
+				var maxLang i18n.Language
+				maxScore := 0
+				for lang, score := range scores {
+					if score > maxScore {
+						maxScore = score
+						maxLang = lang
+					}
+				}
+
+				// 如果检测到语言变化且差异超过阈值
+				if maxLang != "" && maxLang != currentLang {
+					currentScore := scores[currentLang]
+					if maxScore-currentScore >= switchThreshold {
+						p.i18nMgr.SetLanguage(maxLang)
+						languageSwitchCount++
+						log.Printf("语言切换: %s -> %s (得分: %d vs %d)", currentLang, maxLang, maxScore, currentScore)
+					}
 				}
 			}
+		}
 
 		// 更新来源上下文
 		if parser.IsValidSource(parsed.Body) {
@@ -146,6 +207,9 @@ func (p *LogProcessor) Process(
 	}
 
 	log.Printf("扫描了 %d 行，新增 %d 条记录", lineCount, newRecordCount)
+	if p.dynamicLang.Enabled && languageSwitchCount > 0 {
+		log.Printf("动态语言切换 %d 次", languageSwitchCount)
+	}
 
 	return lastLogTime
 }

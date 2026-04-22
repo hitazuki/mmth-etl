@@ -2,7 +2,6 @@ package parser
 
 import (
 	"mmth-etl/types"
-	"strings"
 )
 
 // LogType 日志类型枚举
@@ -20,24 +19,28 @@ const (
 // IdentifyLogType 识别日志类型（一次扫描确定类型）
 func IdentifyLogType(body string) LogType {
 	// 检查物品变动记录（统一格式：Name: ItemName(Quality) × N）
-	if types.DiamondRegex.MatchString(body) {
+	if types.DiamondRegex().MatchString(body) {
 		return LogTypeDiamond
 	}
-	if types.RuneTicketRegex.MatchString(body) {
+	if types.RuneTicketRegex().MatchString(body) {
 		return LogTypeRuneTicket
 	}
-	if types.UpgradePanaceaRegex.MatchString(body) {
+	if types.UpgradePanaceaRegex().MatchString(body) {
 		return LogTypeUpgradePanacea
 	}
 
 	// 检查洞穴记录
-	if types.CaveEnterRegex.MatchString(body) || types.CaveFinishRegex.MatchString(body) || types.CaveErrorRegex.MatchString(body) {
+	if types.CaveEnterRegex().MatchString(body) || types.CaveFinishRegex().MatchString(body) || types.CaveErrorRegex.MatchString(body) {
 		return LogTypeCave
 	}
 
 	// 检查挑战记录
-	if strings.HasPrefix(body, "Challenge") && (types.ChallengeSuccessRegex.MatchString(body) || types.ChallengeFailedRegex.MatchString(body)) {
-		return LogTypeChallenge
+	// 支持 "Challenge" (英文) 和 "挑战" (中文) 等多语言前缀
+	// 通过正则匹配来判断，而不是字符串前缀
+	if types.ChallengeQuestRegex().MatchString(body) || types.ChallengeTowerRegex().MatchString(body) {
+		if types.ChallengeSuccessRegex().MatchString(body) || types.ChallengeFailedRegex().MatchString(body) {
+			return LogTypeChallenge
+		}
 	}
 
 	return LogTypeNone

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"mmth-etl/aggregator"
+	"mmth-etl/i18n"
 	"mmth-etl/storage"
+	"mmth-etl/types"
 	"os"
 	"path/filepath"
 )
@@ -24,15 +27,50 @@ func main() {
 
 	// 命令行参数
 	outputDir := flag.String("output", "./data", "输出目录路径")
+	langFlag := flag.String("lang", "dynamic", "日志语言 (en, tw, ja, ko, auto, dynamic)")
 	flag.Parse()
 
 	// 检查日志文件参数
 	args := flag.Args()
 	if len(args) < 1 {
-		fmt.Println("用法: mmth_etl [-output <输出目录>] <日志文件路径>")
+		fmt.Println("用法: mmth_etl [-output <输出目录>] [-lang <语言>] <日志文件路径>")
+		fmt.Println("  -lang: en (英文), tw (繁中), ja (日文), ko (韩文), auto (启动时自动检测), dynamic (运行时动态检测)")
 		os.Exit(1)
 	}
 	inputLogPath := args[0]
+
+	// 初始化 i18n 管理器
+	i18nMgr := i18n.NewManager()
+
+	// 动态语言检测配置
+	dynamicCfg := DynamicLanguageConfig{
+		Enabled:         false,
+		WindowSize:      100,
+		SwitchThreshold: 5,
+	}
+
+	// 设置语言
+	switch *langFlag {
+	case "dynamic":
+		// 动态检测模式：在运行时持续检测语言变化
+		dynamicCfg.Enabled = true
+		// 初始使用英文，运行时会根据检测结果切换
+		i18nMgr.SetLanguage(i18n.LangEn)
+		log.Printf("启用动态语言检测模式 (窗口: %d, 切换阈值: %d)", dynamicCfg.WindowSize, dynamicCfg.SwitchThreshold)
+	case "auto":
+		// 自动检测语言（启动时一次性检测）
+		detector := i18n.NewDetector()
+		sampleLines := readSampleLines(inputLogPath, 500)
+		detectedLang := detector.Detect(sampleLines)
+		i18nMgr.SetLanguage(detectedLang)
+		log.Printf("检测到日志语言: %s", detectedLang)
+	default:
+		i18nMgr.SetLanguage(i18n.Language(*langFlag))
+		log.Printf("使用指定语言: %s", *langFlag)
+	}
+
+	// 初始化全局模式
+	types.InitI18n(i18nMgr)
 
 	// 配置路径
 	diamondJSONPath := filepath.Join(*outputDir, "diamond_stats.json")
@@ -47,7 +85,7 @@ func main() {
 	checkpoint := checkpointMgr.Load()
 
 	// 创建处理器
-	processor := NewLogProcessor(inputLogPath, checkpoint)
+	processor := NewLogProcessor(inputLogPath, checkpoint, i18nMgr, dynamicCfg)
 
 	// 创建聚合器
 	diamondAgg := aggregator.NewChangeAggregator(false)
@@ -107,4 +145,24 @@ func main() {
 	}
 
 	fmt.Printf("处理完成\n")
+}
+
+// readSampleLines reads a sample of lines from a file for language detection.
+func readSampleLines(filePath string, maxLines int) []string {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() && len(lines) < maxLines {
+		line := scanner.Text()
+		if line != "" {
+			lines = append(lines, line)
+		}
+	}
+
+	return lines
 }

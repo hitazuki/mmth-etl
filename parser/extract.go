@@ -12,11 +12,11 @@ func ExtractChangeRecord(parsed ParsedLog, source string, logType LogType) *type
 
 	switch logType {
 	case LogTypeDiamond:
-		regex = types.DiamondRegex
+		regex = types.DiamondRegex()
 	case LogTypeRuneTicket:
-		regex = types.RuneTicketRegex
+		regex = types.RuneTicketRegex()
 	case LogTypeUpgradePanacea:
-		regex = types.UpgradePanaceaRegex
+		regex = types.UpgradePanaceaRegex()
 	default:
 		return nil
 	}
@@ -64,7 +64,7 @@ func ExtractCaveRecord(parsed ParsedLog) *types.CaveRecord {
 		}
 	}
 
-	if types.CaveFinishRegex.MatchString(body) {
+	if types.CaveFinishRegex().MatchString(body) {
 		return &types.CaveRecord{
 			Character:   parsed.Character,
 			Timestamp:   parsed.Timestamp,
@@ -73,7 +73,7 @@ func ExtractCaveRecord(parsed ParsedLog) *types.CaveRecord {
 		}
 	}
 
-	if types.CaveEnterRegex.MatchString(body) {
+	if types.CaveEnterRegex().MatchString(body) {
 		return &types.CaveRecord{
 			Character:   parsed.Character,
 			Timestamp:   parsed.Timestamp,
@@ -94,23 +94,30 @@ func ExtractChallengeRecord(parsed ParsedLog) *types.ChallengeRecord {
 		Timestamp:   parsed.Timestamp,
 	}
 
-	if types.ChallengeSuccessRegex.MatchString(body) {
+	if types.ChallengeSuccessRegex().MatchString(body) {
 		record.Status = types.ChallengeStatusSuccess
 	} else {
 		record.Status = types.ChallengeStatusFailed
 	}
 
 	// 匹配主线挑战
-	if matches := types.ChallengeQuestRegex.FindStringSubmatch(body); len(matches) > 1 {
+	if matches := types.ChallengeQuestRegex().FindStringSubmatch(body); len(matches) > 1 {
 		record.Type = types.ChallengeTypeQuest
 		record.Level = matches[1]
 		return record
 	}
 
 	// 匹配塔挑战
-	if matches := types.ChallengeTowerRegex.FindStringSubmatch(body); len(matches) > 2 {
+	if matches := types.ChallengeTowerRegex().FindStringSubmatch(body); len(matches) > 2 {
 		record.Type = types.ChallengeTypeTower
-		record.TowerType = types.TowerType(matches[1])
+		// 将语言特定的塔名规范化为统一的英文类型
+		towerName := matches[1]
+		normalizedType := types.GetI18nManager().TowerNameToType(towerName)
+		if normalizedType != "" {
+			record.TowerType = types.TowerType(normalizedType)
+		} else {
+			record.TowerType = types.TowerType(towerName)
+		}
 		record.Level = matches[2]
 		return record
 	}
