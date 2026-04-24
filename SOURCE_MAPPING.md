@@ -93,7 +93,7 @@
 | Presents Box Claim All | 21308 | 禮物箱 | 礼物箱 | プレゼントボックス |
 | Monthly Boost Already Claimed | 21332 | 每月強化組合包 | 每月强化组合包 | 月間ブースト |
 | Total Logins This Month: X/30 | 3331 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： |
-| A player in your World clears/reaches | 23277 | 本世界首次有玩家... | - | - |
+| A player in your World clears/reaches | 23277 | 本世界首次有玩家... | - | ワールド内のプレイヤーが初めて |
 
 ### helper自定义（RewardMissionMsg 模式）
 
@@ -111,8 +111,8 @@
 | Auto Buy Store Items | 100002 | Auto Buy Store Items | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
 | Expected Value Below 20 | 100003 | The expected diamond value... | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... | 현재 작업의 다이아몬드 예상 값... |
 | Missions Claim All | 100004 | You have no more challenges left. / Cave of Space-TimeFinished | 剩餘挑戰次數不足 / 時空洞窟已完成 | 剩余挑战次数不足 / 时空洞窟已完成 | 残り挑戦回数がありません / 時空の洞窟完了 | - |
-| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | - | - |
-| Open | 100006 | Open | 開啟 | 开启 | - | - |
+| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | Gacha | Gacha |
+| Open | 100006 | Open | 開啟 | 开启 | Open | Open |
 | Tower of Infinity | 100007 | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | - |
 | Temple of Illusions | 100008 | You have triumphed. | 勝利 | 胜利 | 勝利しました | 승리했습니다. |
 

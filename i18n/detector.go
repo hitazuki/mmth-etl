@@ -37,6 +37,9 @@ func NewDetector() *Detector {
 			LangJa: {
 				regexp.MustCompile(`名称: ダイヤ`),
 				regexp.MustCompile(`名称: ルーンチケット`),
+				regexp.MustCompile(`時空の洞窟に入る`),
+				regexp.MustCompile(`時空の洞窟完了`),
+				regexp.MustCompile(`勝利|敗北`),
 				regexp.MustCompile(`無窮の塔|藍の塔|紅の塔|翠の塔|黄の塔`),
 			},
 			LangKo: {

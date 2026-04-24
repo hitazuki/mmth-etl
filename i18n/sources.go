@@ -77,6 +77,7 @@ var sourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDPresentsBox, "Presents Box", "プレゼントボックス"},
 		{SourceIDMonthlyBoost, "Monthly Boost", "月間ブースト"},
 		{SourceIDTotalLogins, "Total Logins This Month", "今月の合計ログイン日数："},
+		{SourceIDWorldClears, "World Player Clears", "ワールド内のプレイヤーが初めて"},
 		{SourceIDLogin, "Login", "ログイン"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自動購入ストアアイテム"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "現在のタスクのダイヤの期待値"},
@@ -115,6 +116,7 @@ var rewardMissionDefinitions = map[Language][]RewardMissionPattern{
 	LangJa: {
 		{"Daily の ", MissionGroupDailyID, "Daily Mission Reward"},
 		{"Weekly の ", MissionGroupWeeklyID, "Weekly Mission Reward"},
+		{"Main の ", MissionGroupMainID, "Main Mission Reward"},
 	},
 }
 

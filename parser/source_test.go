@@ -200,6 +200,10 @@ func TestGetSourceID_Japanese(t *testing.T) {
 		{"無窮の塔:", i18n.SourceIDTowerInfinity, "Tower of Infinity JA"},
 		{"勝利しました", i18n.SourceIDTempleIllusions, "Temple of Illusions JA"},
 		{"今月の合計ログイン日数：", i18n.SourceIDTotalLogins, "Total Logins JA"},
+		{"ワールド内のプレイヤーが初めて", i18n.SourceIDWorldClears, "World clears JA"},
+		{"Daily の 60 報酬", i18n.MissionGroupDailyID, "Daily Mission Reward JA"},
+		{"Weekly の 80 報酬", i18n.MissionGroupWeeklyID, "Weekly Mission Reward JA"},
+		{"Main の 100 報酬", i18n.MissionGroupMainID, "Main Mission Reward JA"},
 	}
 
 	for _, tt := range tests {
