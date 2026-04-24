@@ -121,7 +121,7 @@ func TestGetSourceID_English(t *testing.T) {
 		{"Fountain of Prayers:", i18n.SourceIDFountainOfPrayers, "Fountain of Prayers"},
 		{"Presents Box Claim All", i18n.SourceIDPresentsBox, "Presents Box"},
 		{"Monthly Boost Already Claimed", i18n.SourceIDMonthlyBoost, "Monthly Boost"},
-		{"Login", i18n.SourceIDLogin, "Login"},
+		{"Login", i18n.SourceIDLoginBonus, "Login"},
 		{"Auto Buy Store Items", i18n.SourceIDAutoBuyStore, "Auto Buy Store Items"},
 		{"You have no more challenges left.", i18n.SourceIDMissionsClaimed, "Missions Claim All"},
 		{"Cave of Space-TimeFinished", i18n.SourceIDMissionsClaimed, "Cave Finished"},
@@ -158,7 +158,7 @@ func TestGetSourceID_TraditionalChinese(t *testing.T) {
 		{"祈願之泉:", i18n.SourceIDFountainOfPrayers, "祈願之泉"},
 		{"禮物箱", i18n.SourceIDPresentsBox, "Presents Box TW"},
 		{"每月強化組合包", i18n.SourceIDMonthlyBoost, "Monthly Boost TW"},
-		{"登錄", i18n.SourceIDLogin, "Login TW"},
+		{"簽到獎勵:", i18n.SourceIDLoginBonus, "Login Bonus TW"},
 		{"自動購買商城物品", i18n.SourceIDAutoBuyStore, "Auto Buy TW"},
 		{"剩餘挑戰次數不足", i18n.SourceIDMissionsClaimed, "Missions Claim All TW"},
 		{"時空洞窟已完成", i18n.SourceIDMissionsClaimed, "Cave Finished TW"},
@@ -193,7 +193,7 @@ func TestGetSourceID_Japanese(t *testing.T) {
 	}{
 		{"祈りの泉:", i18n.SourceIDFountainOfPrayers, "Fountain of Prayers JA"},
 		{"プレゼントボックス", i18n.SourceIDPresentsBox, "Presents Box JA"},
-		{"ログイン", i18n.SourceIDLogin, "Login JA"},
+		{"ログイン", i18n.SourceIDLoginBonus, "Login Bonus JA"},
 		{"自動購入ストアアイテム", i18n.SourceIDAutoBuyStore, "Auto Buy JA"},
 		{"残り挑戦回数がありません", i18n.SourceIDMissionsClaimed, "Missions Claimed JA"},
 		{"時空の洞窟完了", i18n.SourceIDMissionsClaimed, "Cave Finished JA"},
@@ -232,7 +232,7 @@ func TestGetSourceID_Korean(t *testing.T) {
 		{"월간 부스트", i18n.SourceIDMonthlyBoost, "Monthly Boost KO"},
 		{"이번 달 보상 수령:", i18n.SourceIDTotalLogins, "Total Logins KO"},
 		{"월드 내 플레이어가 최초로", i18n.SourceIDWorldClears, "World clears KO"},
-		{"로그인", i18n.SourceIDLogin, "Login KO"},
+		{"로그인", i18n.SourceIDLoginBonus, "Login Bonus KO"},
 		{"자동으로 상점 아이템 구매", i18n.SourceIDAutoBuyStore, "Auto Buy KO"},
 		{"현재 작업의 다이아몬드 예상 값", i18n.SourceIDExpectedValue, "Expected Value KO"},
 		{"시공의 동굴 완료", i18n.SourceIDMissionsClaimed, "Cave Finished KO"},
@@ -269,7 +269,7 @@ func TestMapSourceWithID(t *testing.T) {
 		{"Tower of Infinity: 800", i18n.SourceIDTowerInfinity, "Tower of Infinity EN"},
 		{"You have triumphed.", i18n.SourceIDTempleIllusions, "Temple of Illusions EN"},
 		{"Fountain of Prayers:", i18n.SourceIDFountainOfPrayers, "Fountain of Prayers"},
-		{"Login", i18n.SourceIDLogin, "Login"},
+		{"Login", i18n.SourceIDLoginBonus, "Login"},
 	}
 
 	for _, tt := range tests {

@@ -16,6 +16,7 @@ type SourceEntry struct {
 // Game built-in source IDs from TextResource
 const (
 	SourceIDFountainOfPrayers SourceID = 140   // Fountain of Prayers
+	SourceIDLoginBonus        SourceID = 719   // Login Bonus (签到奖励)
 	SourceIDPresentsBox       SourceID = 21308 // Presents Box
 	SourceIDMonthlyBoost      SourceID = 21332 // Monthly Boost
 	SourceIDTotalLogins       SourceID = 3331  // Total Logins
@@ -31,7 +32,6 @@ const (
 
 // Helper custom source IDs
 const (
-	SourceIDLogin           SourceID = 100001
 	SourceIDAutoBuyStore    SourceID = 100002
 	SourceIDExpectedValue   SourceID = 100003
 	SourceIDMissionsClaimed SourceID = 100004
@@ -50,7 +50,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDMonthlyBoost, "Monthly Boost", "Monthly Boost Already Claimed"},
 		{SourceIDTotalLogins, "Total Logins This Month", "Total Logins This Month:"},
 		{SourceIDWorldClears, "World Player Clears", "A player in your World clears"},
-		{SourceIDLogin, "Login", "Login"},
+		{SourceIDLoginBonus, "Login Bonus", "Login"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "Auto Buy Store Items"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "The expected diamond value"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "You have no more challenges left."},
@@ -64,7 +64,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDMonthlyBoost, "Monthly Boost", "每月強化組合包"},
 		{SourceIDTotalLogins, "Total Logins This Month", "本月累計簽到天數："},
 		{SourceIDWorldClears, "World Player Clears", "本世界首次有玩家"},
-		{SourceIDLogin, "Login", "登錄"},
+		{SourceIDLoginBonus, "Login Bonus", "簽到獎勵:"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自動購買商城物品"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "當前任務的鑽石數量期望值"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "剩餘挑戰次數不足"},
@@ -78,7 +78,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDMonthlyBoost, "Monthly Boost", "月間ブースト"},
 		{SourceIDTotalLogins, "Total Logins This Month", "今月の合計ログイン日数："},
 		{SourceIDWorldClears, "World Player Clears", "ワールド内のプレイヤーが初めて"},
-		{SourceIDLogin, "Login", "ログイン"},
+		{SourceIDLoginBonus, "Login Bonus", "ログイン"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自動購入ストアアイテム"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "現在のタスクのダイヤの期待値"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "残り挑戦回数がありません"},
@@ -92,7 +92,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDMonthlyBoost, "Monthly Boost", "월간 부스트"},
 		{SourceIDTotalLogins, "Total Logins This Month", "이번 달 보상 수령:"},
 		{SourceIDWorldClears, "World Player Clears", "월드 내 플레이어가 최초로"},
-		{SourceIDLogin, "Login", "로그인"},
+		{SourceIDLoginBonus, "Login Bonus", "로그인"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "자동으로 상점 아이템 구매"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "현재 작업의 다이아몬드 예상 값"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "시공의 동굴 완료"},

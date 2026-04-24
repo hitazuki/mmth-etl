@@ -19,13 +19,13 @@ func TestDynamicLanguageSwitch(t *testing.T) {
 
 		source := "Login"
 		id := GetSourceID(source)
-		if id != i18n.SourceIDLogin {
-			t.Errorf("English: GetSourceID(%q) = %d, want %d", source, id, i18n.SourceIDLogin)
+		if id != i18n.SourceIDLoginBonus {
+			t.Errorf("English: GetSourceID(%q) = %d, want %d", source, id, i18n.SourceIDLoginBonus)
 		}
 
 		alias := GetSourceAlias(source)
-		if alias != "Login" {
-			t.Errorf("English: GetSourceAlias(%q) = %q, want %q", source, alias, "Login")
+		if alias != "Login Bonus" {
+			t.Errorf("English: GetSourceAlias(%q) = %q, want %q", source, alias, "Login Bonus")
 		}
 	})
 
@@ -47,10 +47,10 @@ func TestDynamicLanguageSwitch(t *testing.T) {
 		mgr.SetLanguage(i18n.LangTw)
 		InvalidateSourceCache()
 
-		source := "登錄"
+		source := "簽到獎勵:"
 		id := GetSourceID(source)
-		if id != i18n.SourceIDLogin {
-			t.Errorf("Chinese: GetSourceID(%q) = %d, want %d", source, id, i18n.SourceIDLogin)
+		if id != i18n.SourceIDLoginBonus {
+			t.Errorf("Chinese: GetSourceID(%q) = %d, want %d", source, id, i18n.SourceIDLoginBonus)
 		}
 	})
 
@@ -86,9 +86,9 @@ func TestDynamicLanguageSwitch(t *testing.T) {
 		mgr.SetLanguage(i18n.LangTw)
 
 		// This should automatically detect language change and rebuild cache
-		id := GetSourceID("登錄")
-		if id != i18n.SourceIDLogin {
-			t.Errorf("Auto-invalidate failed: GetSourceID(\"登錄\") = %d, want %d", id, i18n.SourceIDLogin)
+		id := GetSourceID("簽到獎勵:")
+		if id != i18n.SourceIDLoginBonus {
+			t.Errorf("Auto-invalidate failed: GetSourceID(\"登錄\") = %d, want %d", id, i18n.SourceIDLoginBonus)
 		}
 	})
 }
@@ -105,19 +105,19 @@ func TestSourceMatchingWithLogPatterns(t *testing.T) {
 		desc     string
 	}{
 		// English patterns
-		{i18n.LangEn, "Login", i18n.SourceIDLogin, "EN Login"},
+		{i18n.LangEn, "Login", i18n.SourceIDLoginBonus, "EN Login"},
 		{i18n.LangEn, "Auto Buy Store Items", i18n.SourceIDAutoBuyStore, "EN Auto Buy"},
 		{i18n.LangEn, "Fountain of Prayers: 100 diamonds", i18n.SourceIDFountainOfPrayers, "EN Fountain"},
 		{i18n.LangEn, "Get Daily 's 60 Reward", i18n.MissionGroupDailyID, "EN Daily Reward"},
 
 		// Chinese patterns
-		{i18n.LangTw, "登錄", i18n.SourceIDLogin, "TW Login"},
+		{i18n.LangTw, "簽到獎勵:", i18n.SourceIDLoginBonus, "TW Login"},
 		{i18n.LangTw, "自動購買商城物品", i18n.SourceIDAutoBuyStore, "TW Auto Buy"},
 		{i18n.LangTw, "祈願之泉: 100 diamonds", i18n.SourceIDFountainOfPrayers, "TW Fountain"},
 		{i18n.LangTw, "领取 Daily 的 60 奖励", i18n.MissionGroupDailyID, "TW Daily Reward"},
 
 		// Japanese patterns
-		{i18n.LangJa, "ログイン", i18n.SourceIDLogin, "JA Login"},
+		{i18n.LangJa, "ログイン", i18n.SourceIDLoginBonus, "JA Login"},
 		{i18n.LangJa, "祈りの泉: 100 diamonds", i18n.SourceIDFountainOfPrayers, "JA Fountain"},
 	}
 
