@@ -50,6 +50,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDMonthlyBoost, "Monthly Boost", "Monthly Boost Already Claimed"},
 		{SourceIDTotalLogins, "Total Logins This Month", "Total Logins This Month:"},
 		{SourceIDWorldClears, "World Player Clears", "A player in your World clears"},
+		{SourceIDWorldClears, "World Player Clears", "A player in your World reaches"},
 		{SourceIDLoginBonus, "Login Bonus", "Login"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "Auto Buy Store Items"},
 		{SourceIDExpectedValue, "Expected Value Below 20", "The expected diamond value"},
