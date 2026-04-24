@@ -6,7 +6,7 @@ import (
 )
 
 // IsValidSource 检查日志主体是否可作为来源上下文
-// 过滤掉物品变动日志（Name:）、挑战日志（Challenge）和错误日志（OnError）
+// 过滤掉物品变动日志（Name:）、挑战日志（Challenge）、错误日志（OnError）和系统异常日志
 func IsValidSource(body string) bool {
 	mgr := types.GetI18nManager()
 
@@ -22,6 +22,12 @@ func IsValidSource(body string) bool {
 
 	// 检查 OnError（语言无关）
 	if strings.HasPrefix(body, "OnError") {
+		return false
+	}
+
+	// 检查系统异常日志（System. 开头）
+	// 这类日志可能是洞窟记录，但不应作为物品变动的来源上下文
+	if strings.HasPrefix(body, "System.") {
 		return false
 	}
 
