@@ -45,6 +45,9 @@ func NewDetector() *Detector {
 			LangKo: {
 				regexp.MustCompile(`이름: 다이아`),
 				regexp.MustCompile(`이름: 룬 티켓`),
+				regexp.MustCompile(`시공의 동굴 입장`),
+				regexp.MustCompile(`시공의 동굴 완료`),
+				regexp.MustCompile(`승리|패배`),
 				regexp.MustCompile(`무한의 탑|남청의 탑|홍염의 탑|비취의 탑|황철의 탑`),
 			},
 		},

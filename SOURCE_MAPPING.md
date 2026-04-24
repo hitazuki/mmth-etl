@@ -12,34 +12,34 @@
 
 ## 钻石来源统计
 
-| Source | 出现次数 | 繁中 | 简中 | 日文 |
-|--------|----------|------|------|------|
-| Fountain of Prayers: | 275 | 祈願之泉: | 祈愿之泉: | 祈りの泉: |
-| Get Daily 's 60 Reward | 257 | 领取 Daily 的 60 奖励 | - | - |
-| Presents Box Claim All | 240 | 禮物箱 | 礼物箱 | プレゼントボックス |
-| Login | 62 | 登錄 | 登录 | ログイン |
-| Auto Buy Store Items | 52 | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム |
-| Get Weekly 's 80 Reward | 48 | 领取 Weekly 的 80 奖励 | - | - |
-| A player in your World clears Floor {0} | 48 | 本世界首次有玩家... | - | - |
-| Monthly Boost Already Claimed | 36 | 每月強化組合包 | 每月强化组合包 | 月間ブースト |
-| Total Logins This Month: 15/30 | 28 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： |
-| 祈願之泉: | 20 | - | - | - |
-| Total Logins This Month: 7/30 | 18 | - | - | - |
-| Total Logins This Month: 25/30 | 18 | - | - | - |
-| Get Daily 's 40 Reward | 18 | - | - | - |
-| Cave of Space-TimeFinished | 10 | 時空洞窟已完成 | 时空洞窟已完成 | 時空の洞窟完了 |
-| A player in your World reaches | 15 | - | - | - |
-| You have no more challenges left. | 9 | 剩餘挑戰次數不足 | 剩余挑战次数不足 | 残り挑戦回数がありません |
-| Nothing to receive | 16 | - | - | - |
-| Get Daily 's 80 Reward | 4 | - | - | - |
-| Get Daily 's 20 Reward | 4 | - | - | - |
-| The expected diamond value... | 4 | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... |
-| Create Team | 6 | 組建隊伍 | 组建队伍 | チーム作成 |
-| Join Random | 2 | - | - | - |
-| Get Weekly 's 60 Reward | 2 | - | - | - |
-| Auto Buy Store Items Finished | 2 | - | - | - |
-| A player in your World clears | 2 | - | - | - |
-| System.Collections.Generic.KeyNotFoundException... | 4 | - | - | - |
+| Source | 出现次数 | 繁中 | 简中 | 日文 | 韩文 |
+|--------|----------|------|------|------|------|
+| Fountain of Prayers: | 275 | 祈願之泉: | 祈愿之泉: | 祈りの泉: | 기원의 샘: |
+| Get Daily 's 60 Reward | 257 | 领取 Daily 的 60 奖励 | - | - | - |
+| Presents Box Claim All | 240 | 禮物箱 | 礼物箱 | プレゼントボックス | 선물 상자 |
+| Login | 62 | 登錄 | 登录 | ログイン | 로그인 |
+| Auto Buy Store Items | 52 | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
+| Get Weekly 's 80 Reward | 48 | 领取 Weekly 的 80 奖励 | - | - | - |
+| A player in your World clears Floor {0} | 48 | 本世界首次有玩家... | - | - | - |
+| Monthly Boost Already Claimed | 36 | 每月強化組合包 | 每月强化组合包 | 月間ブースト | 월간 부스트 |
+| Total Logins This Month: 15/30 | 28 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： | 이번 달 보상 수령: |
+| 祈願之泉: | 20 | - | - | - | - |
+| Total Logins This Month: 7/30 | 18 | - | - | - | - |
+| Total Logins This Month: 25/30 | 18 | - | - | - | - |
+| Get Daily 's 40 Reward | 18 | - | - | - | - |
+| Cave of Space-TimeFinished | 10 | 時空洞窟已完成 | 时空洞窟已完成 | 時空の洞窟完了 | 시공의 동굴 완료 |
+| A player in your World reaches | 15 | - | - | - | - |
+| You have no more challenges left. | 9 | 剩餘挑戰次數不足 | 剩余挑战次数不足 | 残り挑戦回数がありません | - |
+| Nothing to receive | 16 | - | - | - | - |
+| Get Daily 's 80 Reward | 4 | - | - | - | - |
+| Get Daily 's 20 Reward | 4 | - | - | - | - |
+| The expected diamond value... | 4 | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... | 현재 작업의 다이아몬드 예상 값... |
+| Create Team | 6 | 組建隊伍 | 组建队伍 | チーム作成 | - |
+| Join Random | 2 | - | - | - | - |
+| Get Weekly 's 60 Reward | 2 | - | - | - | - |
+| Auto Buy Store Items Finished | 2 | - | - | - | - |
+| A player in your World clears | 2 | - | - | - | - |
+| System.Collections.Generic.KeyNotFoundException... | 4 | - | - | - | - |
 
 ---
 
@@ -70,16 +70,16 @@
 
 ## 强化秘药来源统计
 
-| Source | 出现次数 | 繁中 | 简中 | 日文 |
-|--------|----------|------|------|------|
-| Tower of Infinity: | 273 | 無窮之塔: | 无穷之塔: | 無窮の塔: |
-| temple of illusions | 152 | - | - | - |
-| Gacha 聖天使の神託ガチャ（蒼穹の銀勲） | 19 | - | - | - |
-| 無窮之塔: | 16 | - | - | - |
-| Open Amphora of Creation | 10 | - | - | - |
-| Gacha 聖天使の神託ガチャ（悠園の果実） | 7 | - | - | - |
-| Gacha 聖天使の神託ガチャ（天契の聖杯） | 7 | - | - | - |
-| Gacha 聖天使の神託ガチャ（希求の神翼） | 6 | - | - | - |
+| Source | 出现次数 | 繁中 | 简中 | 日文 | 韩文 |
+|--------|----------|------|------|------|------|
+| Tower of Infinity: | 273 | 無窮之塔: | 无穷之塔: | 無窮の塔: | 무한의 탑: |
+| temple of illusions | 152 | - | - | - | - |
+| Gacha 聖天使の神託ガチャ（蒼穹の銀勲） | 19 | - | - | - | - |
+| 無窮之塔: | 16 | - | - | - | - |
+| Open Amphora of Creation | 10 | - | - | - | - |
+| Gacha 聖天使の神託ガチャ（悠園の果実） | 7 | - | - | - | - |
+| Gacha 聖天使の神託ガチャ（天契の聖杯） | 7 | - | - | - | - |
+| Gacha 聖天使の神託ガチャ（希求の神翼） | 6 | - | - | - | - |
 
 ---
 
@@ -87,13 +87,13 @@
 
 ### 游戏内置（部分匹配）
 
-| Source | Source ID | 繁中 | 简中 | 日文 |
-|--------|-----------|------|------|------|
-| Fountain of Prayers: | 140 | 祈願之泉: | 祈愿之泉: | 祈りの泉: |
-| Presents Box Claim All | 21308 | 禮物箱 | 礼物箱 | プレゼントボックス |
-| Monthly Boost Already Claimed | 21332 | 每月強化組合包 | 每月强化组合包 | 月間ブースト |
-| Total Logins This Month: X/30 | 3331 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： |
-| A player in your World clears/reaches | 23277 | 本世界首次有玩家... | - | ワールド内のプレイヤーが初めて |
+| Source | Source ID | 繁中 | 简中 | 日文 | 韩文 |
+|--------|-----------|------|------|------|------|
+| Fountain of Prayers: | 140 | 祈願之泉: | 祈愿之泉: | 祈りの泉: | 기원의 샘: |
+| Presents Box Claim All | 21308 | 禮物箱 | 礼物箱 | プレゼントボックス | 선물 상자 |
+| Monthly Boost Already Claimed | 21332 | 每月強化組合包 | 每月强化组合包 | 月間ブースト | 월간 부스트 |
+| Total Logins This Month: X/30 | 3331 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： | 이번 달 보상 수령: |
+| A player in your World clears/reaches | 23277 | 本世界首次有玩家... | - | ワールド内のプレイヤーが初めて | 월드 내 플레이어가 최초로 |
 
 ### helper自定义（RewardMissionMsg 模式）
 
@@ -110,10 +110,10 @@
 | Login | 100001 | Login | 登錄 | 登录 | ログイン | 로그인 |
 | Auto Buy Store Items | 100002 | Auto Buy Store Items | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
 | Expected Value Below 20 | 100003 | The expected diamond value... | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... | 현재 작업의 다이아몬드 예상 값... |
-| Missions Claim All | 100004 | You have no more challenges left. / Cave of Space-TimeFinished | 剩餘挑戰次數不足 / 時空洞窟已完成 | 剩余挑战次数不足 / 时空洞窟已完成 | 残り挑戦回数がありません / 時空の洞窟完了 | - |
-| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | Gacha | Gacha |
-| Open | 100006 | Open | 開啟 | 开启 | Open | Open |
-| Tower of Infinity | 100007 | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | - |
+| Missions Claim All | 100004 | You have no more challenges left. / Cave of Space-TimeFinished | 剩餘挑戰次數不足 / 時空洞窟已完成 | 剩余挑战次数不足 / 时空洞窟已完成 | 残り挑戦回数がありません / 時空の洞窟完了 | 시공의 동굴 완료 |
+| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | Gacha | 가챠 |
+| Open | 100006 | Open | 開啟 | 开启 | 開く | 열기 |
+| Tower of Infinity | 100007 | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | 무한의 탑: |
 | Temple of Illusions | 100008 | You have triumphed. | 勝利 | 胜利 | 勝利しました | 승리했습니다. |
 
 ---
@@ -188,4 +188,4 @@ type ChangeRecord struct {
 - 韩文 (KO)
 
 ---
-生成时间: 2026-04-23
+生成时间: 2026-04-24

@@ -87,9 +87,16 @@ var sourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDTempleIllusions, "Temple of Illusions", "勝利しました"},
 	},
 	LangKo: {
+		{SourceIDFountainOfPrayers, "Fountain of Prayers", "기원의 샘:"},
+		{SourceIDPresentsBox, "Presents Box", "선물 상자"},
+		{SourceIDMonthlyBoost, "Monthly Boost", "월간 부스트"},
+		{SourceIDTotalLogins, "Total Logins This Month", "이번 달 보상 수령:"},
+		{SourceIDWorldClears, "World Player Clears", "월드 내 플레이어가 최초로"},
 		{SourceIDLogin, "Login", "로그인"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "자동으로 상점 아이템 구매"},
-		{SourceIDMissionsClaimed, "Missions Claim All", "Cave finished placeholder"},
+		{SourceIDExpectedValue, "Expected Value Below 20", "현재 작업의 다이아몬드 예상 값"},
+		{SourceIDMissionsClaimed, "Missions Claim All", "시공의 동굴 완료"},
+		{SourceIDTowerInfinity, "Tower of Infinity", "무한의 탑:"},
 		{SourceIDTempleIllusions, "Temple of Illusions", "승리했습니다."},
 	},
 }
@@ -117,6 +124,11 @@ var rewardMissionDefinitions = map[Language][]RewardMissionPattern{
 		{"Daily の ", MissionGroupDailyID, "Daily Mission Reward"},
 		{"Weekly の ", MissionGroupWeeklyID, "Weekly Mission Reward"},
 		{"Main の ", MissionGroupMainID, "Main Mission Reward"},
+	},
+	LangKo: {
+		{"일일 의 ", MissionGroupDailyID, "Daily Mission Reward"},
+		{"주간 의 ", MissionGroupWeeklyID, "Weekly Mission Reward"},
+		{"메인 의 ", MissionGroupMainID, "Main Mission Reward"},
 	},
 }
 

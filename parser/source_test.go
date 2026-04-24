@@ -216,6 +216,43 @@ func TestGetSourceID_Japanese(t *testing.T) {
 	}
 }
 
+func TestGetSourceID_Korean(t *testing.T) {
+	mgr := i18n.NewManager()
+	mgr.SetLanguage(i18n.LangKo)
+	types.InitI18n(mgr)
+	InvalidateSourceCache()
+
+	tests := []struct {
+		source     string
+		expectedID i18n.SourceID
+		desc       string
+	}{
+		{"기원의 샘:", i18n.SourceIDFountainOfPrayers, "Fountain of Prayers KO"},
+		{"선물 상자", i18n.SourceIDPresentsBox, "Presents Box KO"},
+		{"월간 부스트", i18n.SourceIDMonthlyBoost, "Monthly Boost KO"},
+		{"이번 달 보상 수령:", i18n.SourceIDTotalLogins, "Total Logins KO"},
+		{"월드 내 플레이어가 최초로", i18n.SourceIDWorldClears, "World clears KO"},
+		{"로그인", i18n.SourceIDLogin, "Login KO"},
+		{"자동으로 상점 아이템 구매", i18n.SourceIDAutoBuyStore, "Auto Buy KO"},
+		{"현재 작업의 다이아몬드 예상 값", i18n.SourceIDExpectedValue, "Expected Value KO"},
+		{"시공의 동굴 완료", i18n.SourceIDMissionsClaimed, "Cave Finished KO"},
+		{"무한의 탑:", i18n.SourceIDTowerInfinity, "Tower of Infinity KO"},
+		{"승리했습니다.", i18n.SourceIDTempleIllusions, "Temple of Illusions KO"},
+		{"일일 의 60 보상", i18n.MissionGroupDailyID, "Daily Mission Reward KO"},
+		{"주간 의 80 보상", i18n.MissionGroupWeeklyID, "Weekly Mission Reward KO"},
+		{"메인 의 100 보상", i18n.MissionGroupMainID, "Main Mission Reward KO"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			result := GetSourceID(tt.source)
+			if result != tt.expectedID {
+				t.Errorf("GetSourceID(%q) = %d, want %d", tt.source, result, tt.expectedID)
+			}
+		})
+	}
+}
+
 func TestMapSourceWithID(t *testing.T) {
 	mgr := i18n.NewManager()
 	mgr.SetLanguage(i18n.LangEn)
