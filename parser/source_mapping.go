@@ -110,39 +110,50 @@ func MapSourceWithID(source string) (alias string, sourceID i18n.SourceID) {
 }
 
 // extractGacha extracts gacha name if source is a gacha log.
+// Returns "Gacha <name>" format, with quantity suffix removed.
+// Pattern: "抽卡 <name> <count> 次" -> "抽卡 <name>"
+// Cuts at the second space in the full string (first space is after prefix).
 func extractGacha(source string) (string, bool) {
-	var prefix, suffix string
+	mgr := types.GetI18nManager()
+	prefixes := mgr.GetAllGachaPrefixes()
 
-	switch {
-	case strings.HasPrefix(source, "Gacha "):
-		prefix, suffix = "Gacha ", " times"
-	case strings.HasPrefix(source, "抽卡 "):
-		prefix, suffix = "抽卡 ", " 次"
-	default:
-		return "", false
-	}
-
-	content := source[len(prefix):]
-	if idx := strings.Index(content, suffix); idx != -1 {
-		before := content[:idx]
-		if lastSpace := strings.LastIndex(before, " "); lastSpace != -1 {
-			return strings.TrimSpace(before[:lastSpace]), true
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(source, prefix) {
+			// Count spaces in full string, cut at second space
+			// "抽卡 黒葬武具ガチャ 5 次" -> second space is before "5"
+			spaceCount := 0
+			for i, r := range source {
+				if r == ' ' {
+					spaceCount++
+					if spaceCount == 2 {
+						return strings.TrimSpace(source[:i]), true
+					}
+				}
+			}
+			// No second space found, return full source
+			return strings.TrimSpace(source), true
 		}
 	}
-	return source, true
+	return "", false
 }
 
 // extractOpen extracts item name if source is an open log.
+// Returns "Open <name>" format, with quantity suffix removed.
+// Pattern: "開啟 <name> x 5" -> "開啟 <name>"
+// Cuts at " x" pattern.
 func extractOpen(source string) (string, bool) {
-	var prefixes = []string{"Open ", "開啟 ", "开启 "}
+	mgr := types.GetI18nManager()
+	prefixes := mgr.GetAllOpenPrefixes()
 
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(source, prefix) {
 			content := source[len(prefix):]
-			if idx := strings.Index(content, " x "); idx != -1 {
-				return strings.TrimSpace(content[:idx]), true
+			// Find " x" to cut before the quantity
+			// "上級封印寶箱 x 5" -> "上級封印寶箱"
+			if idx := strings.Index(content, " x"); idx != -1 {
+				return prefix + strings.TrimSpace(content[:idx]), true
 			}
-			return source, true
+			return prefix + strings.TrimSpace(content), true
 		}
 	}
 	return "", false

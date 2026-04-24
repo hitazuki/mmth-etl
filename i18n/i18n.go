@@ -110,12 +110,14 @@ func (m *Manager) GetVictoryPhrases() map[string]string {
 	return result
 }
 
-// GetGachaPrefix returns the Gacha prefix for the current language.
-func (m *Manager) GetGachaPrefix() string {
-	return "Gacha "
+// GetAllGachaPrefixes returns all Gacha prefixes for matching.
+// EN/JA: Gacha, TW/CN: 抽卡, KO: 가챠
+func (m *Manager) GetAllGachaPrefixes() []string {
+	return []string{"Gacha ", "抽卡 ", "가챠 "}
 }
 
-// GetOpenPrefix returns the Open prefix for the current language.
-func (m *Manager) GetOpenPrefix() string {
-	return "Open "
+// GetAllOpenPrefixes returns all Open prefixes for matching.
+// EN: Open, TW: 開啟, CN: 开启, JA: 開く, KO: 열기
+func (m *Manager) GetAllOpenPrefixes() []string {
+	return []string{"Open ", "開啟 ", "开启 ", "開く ", "열기 "}
 }
