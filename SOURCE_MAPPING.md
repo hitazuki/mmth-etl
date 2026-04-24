@@ -39,7 +39,7 @@
 | Auto Buy Store Items | 100002 | Auto Buy Store Items | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
 | Expected Value Below 20 | 100003 | The expected diamond value... | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... | 현재 작업의 다이아몬드 예상 값... |
 | Missions Claim All | 100004 | You have no more challenges left. / Cave of Space-TimeFinished / Nothing to receive | 剩餘挑戰次數不足 / 時空洞窟已完成 / 没有可以领取的 | 剩余挑战次数不足 / 时空洞窟已完成 | 残り挑戦回数がありません / 時空の洞窟完了 / 受け取れるものはありません | 시공의 동굴 완료 / 수령 가능한 것이 없습니다 |
-| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | Gacha | 가챠 |
+| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | ガチャ | 가챠 |
 | Tower of Infinity | 100007 | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | 무한의 탑: |
 | Temple of Illusions | 100008 | You have triumphed. | 勝利 | 胜利 | 勝利しました | 승리했습니다. |
 
@@ -54,8 +54,9 @@ Gacha 日志格式：`<prefix> <gacha_name> <count> <suffix>, ...`
 **多语言前缀**：
 | 语言 | 前缀 |
 |------|------|
-| EN/JA | Gacha |
+| EN | Gacha |
 | TW/CN | 抽卡 |
+| JA | ガチャ |
 | KO | 가챠 |
 
 **提取规则**：截取第二个空格之前的内容

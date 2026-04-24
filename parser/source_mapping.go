@@ -115,24 +115,22 @@ func MapSourceWithID(source string) (alias string, sourceID i18n.SourceID) {
 // Cuts at the second space in the full string (first space is after prefix).
 func extractGacha(source string) (string, bool) {
 	mgr := types.GetI18nManager()
-	prefixes := mgr.GetAllGachaPrefixes()
+	prefix := mgr.GetCurrentGachaPrefix()
 
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(source, prefix) {
-			// Count spaces in full string, cut at second space
-			// "抽卡 黒葬武具ガチャ 5 次" -> second space is before "5"
-			spaceCount := 0
-			for i, r := range source {
-				if r == ' ' {
-					spaceCount++
-					if spaceCount == 2 {
-						return strings.TrimSpace(source[:i]), true
-					}
+	if strings.HasPrefix(source, prefix) {
+		// Count spaces in full string, cut at second space
+		// "抽卡 黒葬武具ガチャ 5 次" -> second space is before "5"
+		spaceCount := 0
+		for i, r := range source {
+			if r == ' ' {
+				spaceCount++
+				if spaceCount == 2 {
+					return strings.TrimSpace(source[:i]), true
 				}
 			}
-			// No second space found, return full source
-			return strings.TrimSpace(source), true
 		}
+		// No second space found, return full source
+		return strings.TrimSpace(source), true
 	}
 	return "", false
 }
@@ -143,18 +141,16 @@ func extractGacha(source string) (string, bool) {
 // Cuts at " x" pattern.
 func extractOpen(source string) (string, bool) {
 	mgr := types.GetI18nManager()
-	prefixes := mgr.GetAllOpenPrefixes()
+	prefix := mgr.GetCurrentOpenPrefix()
 
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(source, prefix) {
-			content := source[len(prefix):]
-			// Find " x" to cut before the quantity
-			// "上級封印寶箱 x 5" -> "上級封印寶箱"
-			if idx := strings.Index(content, " x"); idx != -1 {
-				return prefix + strings.TrimSpace(content[:idx]), true
-			}
-			return prefix + strings.TrimSpace(content), true
+	if strings.HasPrefix(source, prefix) {
+		content := source[len(prefix):]
+		// Find " x" to cut before the quantity
+		// "上級封印寶箱 x 5" -> "上級封印寶箱"
+		if idx := strings.Index(content, " x"); idx != -1 {
+			return prefix + strings.TrimSpace(content[:idx]), true
 		}
+		return prefix + strings.TrimSpace(content), true
 	}
 	return "", false
 }
