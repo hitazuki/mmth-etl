@@ -50,6 +50,7 @@ func (p *LogProcessor) Process(
 	challengeAgg *aggregator.ChallengeAggregator,
 	runeTicketAgg *aggregator.ChangeAggregator,
 	upgradePanaceaAgg *aggregator.ChangeAggregator,
+	recordsWriter *storage.RecordsWriter,
 ) string {
 	file, err := os.Open(p.inputLogPath)
 	if err != nil {
@@ -164,6 +165,9 @@ func (p *LogProcessor) Process(
 			record := parser.ExtractChangeRecord(parsed, source, logType)
 			if record != nil {
 				diamondAgg.AddRecord(*record)
+					if recordsWriter != nil {
+						recordsWriter.AppendRecord("diamond", *record)
+					}
 				newRecordCount++
 				lastLogTime = record.Timestamp
 			}
@@ -188,6 +192,9 @@ func (p *LogProcessor) Process(
 			record := parser.ExtractChangeRecord(parsed, source, logType)
 			if record != nil {
 				runeTicketAgg.AddRecord(*record)
+					if recordsWriter != nil {
+						recordsWriter.AppendRecord("rune_ticket", *record)
+					}
 			}
 
 		case parser.LogTypeUpgradePanacea:
@@ -198,6 +205,9 @@ func (p *LogProcessor) Process(
 			record := parser.ExtractChangeRecord(parsed, source, logType)
 			if record != nil {
 				upgradePanaceaAgg.AddRecord(*record)
+					if recordsWriter != nil {
+						recordsWriter.AppendRecord("upgrade_panacea", *record)
+					}
 			}
 		}
 	}

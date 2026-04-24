@@ -26,17 +26,17 @@ func ExtractChangeRecord(parsed ParsedLog, source string, logType LogType) *type
 		return nil
 	}
 
-	// 统一应用来源映射，获取别名和来源ID
-	mappedSource, sourceID := MapSourceWithID(source)
-	if mappedSource == "" {
-		mappedSource = "none"
+	// 获取来源ID（records 保留原始 source 文本）
+	_, sourceID := MapSourceWithID(source)
+	if source == "" {
+		source = "none"
 	}
 
 	return &types.ChangeRecord{
 		Character:   parsed.Character,
 		Timestamp:   parsed.Timestamp,
 		Amount:      amount,
-		Source:      mappedSource,
+		Source:      source,
 		SourceID:    int(sourceID),
 	}
 }

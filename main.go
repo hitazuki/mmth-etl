@@ -28,7 +28,7 @@ func main() {
 	// 命令行参数
 	outputDir := flag.String("output", "./data", "输出目录路径")
 	langFlag := flag.String("lang", "dynamic", "日志语言 (en, tw, ja, ko, auto, dynamic)")
-	keepRecords := flag.Bool("records", true, "保留详细变动记录")
+	keepRecords := flag.Bool("records", true, "保留详细变动记录（JSONL格式）")
 	windowSize := flag.Int("window", 100, "动态语言检测滑动窗口大小 (1=逐行检测)")
 	switchThreshold := flag.Int("threshold", 5, "语言切换阈值 (窗口内得分差超过此值才切换)")
 	flag.Parse()
@@ -103,11 +103,22 @@ func main() {
 	processor := NewLogProcessor(inputLogPath, checkpoint, i18nMgr, dynamicCfg)
 
 	// 创建聚合器
-	diamondAgg := aggregator.NewChangeAggregator(*keepRecords)
+	diamondAgg := aggregator.NewChangeAggregator()
 	caveAgg := aggregator.NewCaveAggregator()
 	challengeAgg := aggregator.NewChallengeAggregator()
-	runeTicketAgg := aggregator.NewChangeAggregator(*keepRecords)
-	upgradePanaceaAgg := aggregator.NewChangeAggregator(*keepRecords)
+	runeTicketAgg := aggregator.NewChangeAggregator()
+	upgradePanaceaAgg := aggregator.NewChangeAggregator()
+
+	// 创建 records writer（如果启用）
+	var recordsWriter *storage.RecordsWriter
+	if *keepRecords {
+		recordsWriter = storage.NewRecordsWriter(*outputDir)
+		defer func() {
+			if err := recordsWriter.Close(); err != nil {
+				log.Printf("关闭 records writer 失败: %v", err)
+			}
+		}()
+	}
 
 	// 加载已有统计（增量处理）
 	diamondAgg.LoadExistingStats(diamondJSONPath)
@@ -119,7 +130,7 @@ func main() {
 	log.Println("已加载现有统计数据")
 
 	// 流式处理日志
-	lastLogTime := processor.Process(diamondAgg, caveAgg, challengeAgg, runeTicketAgg, upgradePanaceaAgg)
+	lastLogTime := processor.Process(diamondAgg, caveAgg, challengeAgg, runeTicketAgg, upgradePanaceaAgg, recordsWriter)
 
 	// 检查是否有新记录
 	if diamondAgg.RecordCount() == 0 && caveAgg.RecordCount() == 0 && challengeAgg.RecordCount() == 0 && runeTicketAgg.RecordCount() == 0 && upgradePanaceaAgg.RecordCount() == 0 {

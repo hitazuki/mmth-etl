@@ -11,8 +11,9 @@ type ChangeRecord struct {
 
 // SourceStats 按来源的统计
 type SourceStats struct {
-	Gain    int `json:"gain"`
-	Consume int `json:"consume"`
+	SourceID int `json:"source_id,omitempty"` // 来源ID：0=未知/未匹配/Gacha/Open
+	Gain     int `json:"gain"`
+	Consume  int `json:"consume"`
 }
 
 // ChangeStats 变动统计（嵌入型）
@@ -25,8 +26,7 @@ type ChangeStats struct {
 
 // DailyStats 每日统计
 type DailyStats struct {
-	Date    string         `json:"date"`
-	Records []ChangeRecord `json:"records,omitempty"`
+	Date string `json:"date"`
 	ChangeStats
 }
 

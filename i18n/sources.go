@@ -41,9 +41,9 @@ const (
 	SourceIDTempleIllusions SourceID = 100008
 )
 
-// sourceDefinitions maps languages to their source entries.
+// SourceDefinitions maps languages to their source entries.
 // This is used to build language-specific source tables.
-var sourceDefinitions = map[Language][]SourceEntry{
+var SourceDefinitions = map[Language][]SourceEntry{
 	LangEn: {
 		{SourceIDFountainOfPrayers, "Fountain of Prayers", "Fountain of Prayers:"},
 		{SourceIDPresentsBox, "Presents Box", "Presents Box Claim All"},
@@ -134,10 +134,10 @@ var rewardMissionDefinitions = map[Language][]RewardMissionPattern{
 
 // GetSources returns the source entries for the given language.
 func (m *Manager) GetSources(lang Language) []SourceEntry {
-	if sources, ok := sourceDefinitions[lang]; ok {
+	if sources, ok := SourceDefinitions[lang]; ok {
 		return sources
 	}
-	return sourceDefinitions[LangEn]
+	return SourceDefinitions[LangEn]
 }
 
 // CurrentSources returns the source entries for the current language.
