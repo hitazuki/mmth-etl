@@ -157,6 +157,10 @@ func (p *LogProcessor) Process(
 			// System/error logs clear source context
 			delete(lastSourceByCharacter, parsed.Character)
 
+		case parser.LogTypeNameLabel:
+			// Name: prefix logs (item change in different language)
+			// Do not store as source context, do not clear existing source
+
 		case parser.LogTypeNone:
 			// Unknown type - still valid as source context
 			lastSourceByCharacter[parsed.Character] = parsed.Body

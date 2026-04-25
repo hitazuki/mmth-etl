@@ -49,6 +49,11 @@ func TestIdentifyLogType_English(t *testing.T) {
 		{"OnError: something went wrong", LogTypeSystemError, "EN OnError clears source"},
 		{"System.Exception: error", LogTypeSystemError, "EN System clears source"},
 
+		// NameLabel - item change in different language (should not be source context)
+		{"名称: 鑽石(None) × 100", LogTypeNameLabel, "TW Name prefix in EN mode"},
+		{"名前: ダイヤ(None) × 100", LogTypeNameLabel, "JA Name prefix in EN mode"},
+		{"이름: 다이아(None) × 100", LogTypeNameLabel, "KO Name prefix in EN mode"},
+
 		// None
 		{"Some random log message", LogTypeNone, "EN Unknown log"},
 	}

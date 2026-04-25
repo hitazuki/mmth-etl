@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"mmth-etl/i18n"
 	"mmth-etl/types"
 )
 
@@ -17,19 +18,37 @@ const (
 	LogTypeGacha                         // 抽卡来源
 	LogTypeOpen                          // 开启来源
 	LogTypeSystemError                   // 系统/错误日志（清空来源上下文）
+	LogTypeNameLabel                     // 以 Name: 开头但未匹配已知物品类型
 )
+
+// IsNameLabelPrefix checks if body starts with any language's Name: prefix
+func IsNameLabelPrefix(body string) bool {
+	for _, prefix := range i18n.GetAllNameLabels() {
+		if len(body) >= len(prefix) && body[:len(prefix)] == prefix {
+			return true
+		}
+	}
+	return false
+}
 
 // IdentifyLogType 识别日志类型（一次扫描确定类型）
 func IdentifyLogType(body string) LogType {
-	// 检查物品变动记录（统一格式：Name: ItemName(Quality) × N）
-	if types.DiamondRegex().MatchString(body) {
-		return LogTypeDiamond
-	}
-	if types.RuneTicketRegex().MatchString(body) {
-		return LogTypeRuneTicket
-	}
-	if types.UpgradePanaceaRegex().MatchString(body) {
-		return LogTypeUpgradePanacea
+	// Step 1: Check if it's an item change log (Name: prefix in any language)
+	isItemChangeLog := IsNameLabelPrefix(body)
+
+	// Step 2: If item change log, check specific item types
+	if isItemChangeLog {
+		if types.DiamondRegex().MatchString(body) {
+			return LogTypeDiamond
+		}
+		if types.RuneTicketRegex().MatchString(body) {
+			return LogTypeRuneTicket
+		}
+		if types.UpgradePanaceaRegex().MatchString(body) {
+			return LogTypeUpgradePanacea
+		}
+		// Name: prefix but not a tracked item type
+		return LogTypeNameLabel
 	}
 
 	// 检查洞穴记录

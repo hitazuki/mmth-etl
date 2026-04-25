@@ -219,3 +219,14 @@ func (m *Manager) TowerNameToType(name string) string {
 	}
 	return ""
 }
+
+// GetAllNameLabels returns all language Name: prefixes for item change logs.
+// Used to filter out item change logs in any language from source context.
+func GetAllNameLabels() []string {
+	labels := make([]string, 0, 4)
+	for _, lang := range []Language{LangEn, LangTw, LangJa, LangKo} {
+		def := languageDefinitions[lang]
+		labels = append(labels, def.NameLabel+":")
+	}
+	return labels
+}
