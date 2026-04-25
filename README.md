@@ -34,8 +34,8 @@ mmth-etl/
 │   └── detector.go      # 语言检测器 + ScoreAccumulator
 ├── parser/              # 解析模块
 │   ├── parser.go        # 通用日志解析
-│   ├── identify.go      # 日志类型识别
-│   ├── source.go        # 来源映射
+│   ├── identify.go      # 日志类型识别（含来源上下文处理）
+│   ├── source_mapping.go # 来源ID映射
 │   └── extract.go       # 记录提取（含塔名规范化）
 ├── aggregator/          # 聚合模块
 │   ├── change.go        # 变动聚合器（钻石/饼干/红水通用）
