@@ -1,15 +1,13 @@
 package i18n
 
 import (
+	"fmt"
 	"regexp"
 )
 
 // Detector provides language auto-detection for log files.
 type Detector struct {
-	// signatures contains unique patterns for each language
-	signatures map[Language][]*regexp.Regexp
-
-	// gameLogPattern matches game log lines (with character name)
+	signatures     map[Language][]*regexp.Regexp
 	gameLogPattern *regexp.Regexp
 }
 
@@ -17,41 +15,42 @@ type Detector struct {
 func NewDetector() *Detector {
 	return &Detector{
 		gameLogPattern: regexp.MustCompile(`\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] \[.+?\(Lv\d+\)\]`),
-		signatures: map[Language][]*regexp.Regexp{
-			LangEn: {
-				regexp.MustCompile(`Name: Diamonds`),
-				regexp.MustCompile(`Name: Rune Ticket`),
-				regexp.MustCompile(`Enter Cave of Space-Time`),
-				regexp.MustCompile(`Cave of Space-Time Finished`),
-				regexp.MustCompile(`triumphed|failed`),
-				regexp.MustCompile(`Challenge Tower of`),
-			},
-			LangTw: {
-				regexp.MustCompile(`名称: 鑽石`),
-				regexp.MustCompile(`名称: 符石兌換券`),
-				regexp.MustCompile(`进入 時空洞窟`),
-				regexp.MustCompile(`時空洞窟已完成`),
-				regexp.MustCompile(`勝利|敗北`),
-				regexp.MustCompile(`挑战 (無窮之塔|憂藍之塔|業紅之塔|蒼翠之塔|流金之塔)`),
-			},
-			LangJa: {
-				regexp.MustCompile(`名称: ダイヤ`),
-				regexp.MustCompile(`名称: ルーンチケット`),
-				regexp.MustCompile(`時空の洞窟に入る`),
-				regexp.MustCompile(`時空の洞窟完了`),
-				regexp.MustCompile(`勝利|敗北`),
-				regexp.MustCompile(`無窮の塔|藍の塔|紅の塔|翠の塔|黄の塔`),
-			},
-			LangKo: {
-				regexp.MustCompile(`이름: 다이아`),
-				regexp.MustCompile(`이름: 룬 티켓`),
-				regexp.MustCompile(`시공의 동굴 입장`),
-				regexp.MustCompile(`시공의 동굴 완료`),
-				regexp.MustCompile(`승리|패배`),
-				regexp.MustCompile(`무한의 탑|남청의 탑|홍염의 탑|비취의 탑|황철의 탑`),
-			},
-		},
+		signatures:     buildDetectorSignatures(),
 	}
+}
+
+// buildDetectorSignatures generates detection patterns from language definitions.
+func buildDetectorSignatures() map[Language][]*regexp.Regexp {
+	result := make(map[Language][]*regexp.Regexp)
+
+	for lang := range languageDefinitions {
+		def := languageDefinitions[lang]
+		patterns := []*regexp.Regexp{
+			// Name label + item name (most common, appears in every item change log)
+			regexp.MustCompile(fmt.Sprintf(`%s: %s`, regexp.QuoteMeta(def.NameLabel), regexp.QuoteMeta(def.Diamond))),
+			// Cave patterns
+			regexp.MustCompile(regexp.QuoteMeta(def.CaveEnter)),
+			regexp.MustCompile(regexp.QuoteMeta(def.CaveFinish)),
+			// Challenge keyword (language-specific prefix)
+			regexp.MustCompile(fmt.Sprintf(`^%s `, regexp.QuoteMeta(def.ChallengeKeyword))),
+			// Challenge result keywords
+			regexp.MustCompile(fmt.Sprintf(`%s|%s`, regexp.QuoteMeta(def.SuccessKeyword), regexp.QuoteMeta(def.FailedKeyword))),
+		}
+
+		// Tower names pattern (language-specific)
+		towerPattern := fmt.Sprintf(`%s|%s|%s|%s|%s`,
+			regexp.QuoteMeta(def.TowerInfinity),
+			regexp.QuoteMeta(def.TowerAzure),
+			regexp.QuoteMeta(def.TowerCrimson),
+			regexp.QuoteMeta(def.TowerEmerald),
+			regexp.QuoteMeta(def.TowerAmber),
+		)
+		patterns = append(patterns, regexp.MustCompile(towerPattern))
+
+		result[lang] = patterns
+	}
+
+	return result
 }
 
 // Detect analyzes a sample of log lines to determine the language.
