@@ -166,7 +166,7 @@ func TestLanguageDetectionAccuracy(t *testing.T) {
 		{"名称: 鑽石(None) x 100", i18n.LangTw},
 		{"进入 時空洞窟", i18n.LangTw},
 		{"挑战 業紅之塔 800 层: 勝利", i18n.LangTw},
-		{"名称: ダイヤ(None) x 100", i18n.LangJa},
+		{"名前: ダイヤ(None) x 100", i18n.LangJa},
 		{"이름: 다이아(None) x 100", i18n.LangKo},
 		{"도전 무한의 탑 800: 승리", i18n.LangKo},
 	}

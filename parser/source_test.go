@@ -69,7 +69,7 @@ func TestIsValidSource_Japanese(t *testing.T) {
 		expected bool
 		desc     string
 	}{
-		{"名称: ダイヤ(None) × 100", false, "JA Name prefix"},
+		{"名前: ダイヤ(None) × 100", false, "JA Name prefix"},
 		{"挑戦 無窮の塔 800 層に挑戦 1 回：勝利しました、合計回数：1、勝利回数：1、エラー：0", false, "JA Challenge prefix"},
 	}
 

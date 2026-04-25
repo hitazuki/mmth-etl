@@ -67,7 +67,7 @@ var languageDefinitions = map[Language]patternDefinition{
 		TowerAmber:       "流金之塔",
 	},
 	LangJa: {
-		NameLabel:        "名称",
+		NameLabel:        "名前",
 		Diamond:          "ダイヤ",
 		RuneTicket:       "ルーンチケット",
 		UpgradePanacea:   "強化秘薬",
