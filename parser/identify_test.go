@@ -119,8 +119,8 @@ func TestIdentifyLogType_Japanese(t *testing.T) {
 		{"名前: 強化秘薬(SSR) × 5", LogTypeUpgradePanacea, "JA Upgrade Panacea"},
 
 		// Cave
-		{"時空の洞窟に入る", LogTypeCave, "JA Cave enter"},
-		{"時空の洞窟完了", LogTypeCave, "JA Cave finish"},
+		{"入る 時空の洞窟", LogTypeCave, "JA Cave enter"},
+		{"時空の洞窟 完了済み", LogTypeCave, "JA Cave finish"},
 
 		// Challenge
 		{"36-13 ボスに挑戦 1 回：勝利しました、合計回数：1、勝利回数：1、エラー：0", LogTypeChallenge, "JA Quest challenge success"},
@@ -163,8 +163,8 @@ func TestIdentifyLogType_Korean(t *testing.T) {
 		{"이름: 강화의 비약(SSR) × 5", LogTypeUpgradePanacea, "KO Upgrade Panacea"},
 
 		// Cave
-		{"시공의 동굴 입장", LogTypeCave, "KO Cave enter"},
-		{"시공의 동굴 완료", LogTypeCave, "KO Cave finish"},
+		{"입장 시공의 동굴", LogTypeCave, "KO Cave enter"},
+		{"시공의 동굴 완료됨", LogTypeCave, "KO Cave finish"},
 
 		// Challenge
 		{"36-13 보스에 도전 1회: 승리, 총 시도 횟수: 1, 승리 횟수: 1, 오류: 0", LogTypeChallenge, "KO Quest challenge success"},
