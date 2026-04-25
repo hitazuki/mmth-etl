@@ -112,7 +112,7 @@ func TestSourceMatchingWithLogPatterns(t *testing.T) {
 
 		// Chinese patterns
 		{i18n.LangTw, "簽到獎勵:", i18n.SourceIDLoginBonus, "TW Login"},
-		{i18n.LangTw, "自動購買商城物品", i18n.SourceIDAutoBuyStore, "TW Auto Buy"},
+		{i18n.LangTw, "自动购买商城物品", i18n.SourceIDAutoBuyStore, "TW Auto Buy"},
 		{i18n.LangTw, "祈願之泉: 100 diamonds", i18n.SourceIDFountainOfPrayers, "TW Fountain"},
 		{i18n.LangTw, "领取 Daily 的 60 奖励", i18n.MissionGroupDailyID, "TW Daily Reward"},
 

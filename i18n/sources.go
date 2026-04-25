@@ -18,6 +18,8 @@ const (
 	SourceIDFountainOfPrayers SourceID = 140   // Fountain of Prayers
 	SourceIDOpen              SourceID = 67    // Open (開啟)
 	SourceIDLoginBonus        SourceID = 719   // Login Bonus (签到奖励)
+	SourceIDTempleIllusions   SourceID = 2766  // Temple of Illusions (勝利)
+	SourceIDTowerInfinity     SourceID = 138   // Tower of Infinity (無窮之塔)
 	SourceIDPresentsBox       SourceID = 21308 // Presents Box
 	SourceIDMonthlyBoost      SourceID = 21332 // Monthly Boost
 	SourceIDTotalLogins       SourceID = 3331  // Total Logins
@@ -34,11 +36,8 @@ const (
 // Helper custom source IDs
 const (
 	SourceIDAutoBuyStore    SourceID = 100002
-	SourceIDExpectedValue   SourceID = 100003
 	SourceIDMissionsClaimed SourceID = 100004
 	SourceIDGacha           SourceID = 100005
-	SourceIDTowerInfinity   SourceID = 100007
-	SourceIDTempleIllusions SourceID = 100008
 )
 
 // SourceDefinitions maps languages to their source entries.
@@ -49,11 +48,10 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDPresentsBox, "Presents Box", "Presents Box Claim All"},
 		{SourceIDMonthlyBoost, "Monthly Boost", "Monthly Boost Already Claimed"},
 		{SourceIDTotalLogins, "Total Logins This Month", "Total Logins This Month:"},
-		{SourceIDWorldClears, "World Player Clears", "A player in your World clears"},
-		{SourceIDWorldClears, "World Player Clears", "A player in your World reaches"},
+		{SourceIDWorldClears, "World Player Clears", "A player in your World "},
 		{SourceIDLoginBonus, "Login Bonus", "Login"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "Auto Buy Store Items"},
-		{SourceIDExpectedValue, "Expected Value Below 20", "The expected diamond value"},
+		{SourceIDMissionsClaimed, "Expected Value Below 20", "The expected diamond value of the current task is now below 20"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "You have no more challenges left."},
 		{SourceIDMissionsClaimed, "Missions Claim All", "Cave of Space-TimeFinished"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "Nothing to receive"},
@@ -67,8 +65,8 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDTotalLogins, "Total Logins This Month", "本月累計簽到天數："},
 		{SourceIDWorldClears, "World Player Clears", "本世界首次有玩家"},
 		{SourceIDLoginBonus, "Login Bonus", "簽到獎勵:"},
-		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自動購買商城物品"},
-		{SourceIDExpectedValue, "Expected Value Below 20", "當前任務的鑽石數量期望值"},
+		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自动购买商城物品"},
+		{SourceIDMissionsClaimed, "Expected Value Below 20", "当前任务的钻石数量期望值已低于20"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "剩餘挑戰次數不足"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "没有可以领取的"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "時空洞窟已完成"},
@@ -83,7 +81,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDWorldClears, "World Player Clears", "ワールド内のプレイヤーが初めて"},
 		{SourceIDLoginBonus, "Login Bonus", "ログイン"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "自動購入ストアアイテム"},
-		{SourceIDExpectedValue, "Expected Value Below 20", "現在のタスクのダイヤの期待値"},
+		{SourceIDMissionsClaimed, "Expected Value Below 20", "現在のタスクのダイヤの期待値が20未満になったため"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "残り挑戦回数がありません"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "受け取れるものはありません"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "時空の洞窟完了"},
@@ -98,7 +96,7 @@ var SourceDefinitions = map[Language][]SourceEntry{
 		{SourceIDWorldClears, "World Player Clears", "월드 내 플레이어가 최초로"},
 		{SourceIDLoginBonus, "Login Bonus", "로그인"},
 		{SourceIDAutoBuyStore, "Auto Buy Store Items", "자동으로 상점 아이템 구매"},
-		{SourceIDExpectedValue, "Expected Value Below 20", "현재 작업의 다이아몬드 예상 값"},
+		{SourceIDMissionsClaimed, "Expected Value Below 20", "현재 작업의 다이아몬드 예상 값이 20 미만이므로"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "시공의 동굴 완료"},
 		{SourceIDMissionsClaimed, "Missions Claim All", "수령 가능한 것이 없습니다"},
 		{SourceIDTowerInfinity, "Tower of Infinity", "무한의 탑:"},

@@ -14,34 +14,42 @@
 
 ### 游戏内置（部分匹配）
 
-| Source | Source ID | 繁中 | 简中 | 日文 | 韩文 |
-|--------|-----------|------|------|------|------|
-| Fountain of Prayers: | 140 | 祈願之泉: | 祈愿之泉: | 祈りの泉: | 기원의 샘: |
-| Open | 67 | 開啟 | 开启 | 開く | 열기 |
-| Login Bonus | 719 | 簽到獎勵: | 签到奖励: | ログイン | 로그인 |
-| Presents Box Claim All | 21308 | 禮物箱 | 礼物箱 | プレゼントボックス | 선물 상자 |
-| Monthly Boost Already Claimed | 21332 | 每月強化組合包 | 每月强化组合包 | 月間ブースト | 월간 부스트 |
-| Total Logins This Month: X/30 | 3331 | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： | 이번 달 보상 수령: |
-| A player in your World clears/reaches | 23277 | 本世界首次有玩家 | 本世界首次有玩家 | ワールド内のプレイヤーが初めて | 월드 내 플레이어가 최초로 |
+| Source ID | 别名 | 英文 | 繁中 | 简中 | 日文 | 韩文 |
+|-----------|------|------|------|------|------|------|
+| 140 | Fountain of Prayers | Fountain of Prayers: | 祈願之泉: | 祈愿之泉: | 祈りの泉: | 기원의 샘: |
+| 67 | Open | Open | 開啟 | 开启 | 開く | 열기 |
+| 719 | Login Bonus | Login | 簽到獎勵: | 签到奖励: | ログイン | ログ인 |
+| 138 | Tower of Infinity | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | 무한의 탑: |
+| 2766 | Temple of Illusions | You have triumphed. | 勝利 | 胜利 | 勝利しました | 승리했습니다. |
+| 21308 | Presents Box | Presents Box Claim All | 禮物箱 | 礼物箱 | プレゼントボックス | 선물 상자 |
+| 21332 | Monthly Boost | Monthly Boost Already Claimed | 每月強化組合包 | 每月强化组合包 | 月間ブースト | 월간 부스트 |
+| 3331 | Total Logins This Month | Total Logins This Month: | 本月累計簽到天數： | 本月累计签到天数： | 今月の合計ログイン日数： | 이번 달 보상 수령: |
+| 23277 | World Player Clears | A player in your World | 本世界首次有玩家 | 本世界首次有玩家 | ワールド内のプレイヤーが初めて | 월드 내 플레이어가 최초로 |
 
 ### helper自定义（RewardMissionMsg 模式）
 
-| Source | Source ID | 模板 | 说明 |
-|--------|-----------|------|------|
-| Get Daily 's XX Reward | 23214 | RewardMissionMsg | Daily -> 每日 |
-| Get Weekly 's XX Reward | 23215 | RewardMissionMsg | Weekly -> 每週 |
-| Get Main 's XX Reward | 23213 | RewardMissionMsg | Main -> 主線 |
+| Source ID | 别名 | 英文 | 繁中 | 简中 | 日文 | 韩文 |
+|-----------|------|------|------|------|------|------|
+| 23214 | Daily Mission Reward | Get Daily | 领取 Daily | 领取 Daily | Daily の | 일일 의 |
+| 23215 | Weekly Mission Reward | Get Weekly | 领取 Weekly | 领取 Weekly | Weekly の | 주간 의 |
+| 23213 | Main Mission Reward | Get Main | 领取 Main | 领取 Main | Main の | 메인 의 |
 
 ### helper自定义（自建 ID）
 
-| Source | Source ID | 英文 | 繁中 | 简中 | 日文 | 韩文 |
-|--------|-----------|------|------|------|------|------|
-| Auto Buy Store Items | 100002 | Auto Buy Store Items | 自動購買商城物品 | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
-| Expected Value Below 20 | 100003 | The expected diamond value... | 當前任務的鑽石數量期望值... | 当前任务的钻石数量期望值... | 現在のタスクのダイヤの期待値... | 현재 작업의 다이아몬드 예상 값... |
-| Missions Claim All | 100004 | You have no more challenges left. / Cave of Space-TimeFinished / Nothing to receive | 剩餘挑戰次數不足 / 時空洞窟已完成 / 没有可以领取的 | 剩余挑战次数不足 / 时空洞窟已完成 | 残り挑戦回数がありません / 時空の洞窟完了 / 受け取れるものはありません | 시공의 동굴 완료 / 수령 가능한 것이 없습니다 |
-| Gacha | 100005 | Gacha | 抽卡 | 抽卡 | ガチャ | 가챠 |
-| Tower of Infinity | 100007 | Tower of Infinity: | 無窮之塔: | 无穷之塔: | 無窮の塔: | 무한의 탑: |
-| Temple of Illusions | 100008 | You have triumphed. | 勝利 | 胜利 | 勝利しました | 승리했습니다. |
+| Source ID | 别名 | 英文 | 中文 | 日文 | 韩文 |
+|-----------|------|------|------|------|------|
+| 100002 | Auto Buy Store Items | Auto Buy Store Items | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
+| 100004 | Missions Claim All | Missions Claim All | 见下方多文本映射 | 见下方多文本映射 | 见下方多文本映射 |
+| 100005 | Gacha | Gacha | 抽卡 | ガチャ | 가챠 |
+
+**Missions Claim All (100004) 多文本映射**：
+
+| 来源 | 英文 | 繁中 | 简中 | 日文 | 韩文 |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| 游戏 TextResource | You have no more challenges left. | 剩餘挑戰次數不足 | 剩余挑战次数不足 | 残り挑戦回数がありません | - |
+| 游戏 TextResource | Cave of Space-TimeFinished | 時空洞窟已完成 | 时空洞窟已完成 | 時空の洞窟完了 | 시공의 동굴 완료 |
+| helper ResourceStrings | Nothing to receive | 没有可以领取的 | | 受け取れるものはありません | 수령 가능한 것이 없습니다 |
+| helper ResourceStrings | The expected diamond value of the current task is now below 20 | 当前任务的钻石数量期望值已低于20 | | 現在のタスクのダイヤの期待値が20未満になったため | 현재 작업의 다이아몬드 예상 값이 20 미만이므로 |
 
 ---
 
@@ -92,6 +100,8 @@ const (
     SourceIDFountainOfPrayers SourceID = 140   // Fountain of Prayers -> 祈願之泉
     SourceIDOpen              SourceID = 67    // Open -> 開啟
     SourceIDLoginBonus        SourceID = 719   // Login Bonus -> 簽到獎勵
+    SourceIDTowerInfinity     SourceID = 138   // Tower of Infinity -> 無窮之塔
+    SourceIDTempleIllusions   SourceID = 2766  // Temple of Illusions -> 勝利
     SourceIDPresentsBox       SourceID = 21308 // Presents Box -> 禮物箱
     SourceIDMonthlyBoost      SourceID = 21332 // Monthly Boost -> 每月強化組合包
     SourceIDTotalLogins       SourceID = 3331  // Total Logins This Month -> 本月累計簽到天數
@@ -101,11 +111,8 @@ const (
 // Helper custom source IDs (starting from 100002)
 const (
     SourceIDAutoBuyStore    SourceID = 100002 // Auto Buy Store Items
-    SourceIDExpectedValue   SourceID = 100003 // Expected diamond value...
     SourceIDMissionsClaimed SourceID = 100004 // Missions Claim All
     SourceIDGacha           SourceID = 100005 // Gacha (抽卡)
-    SourceIDTowerInfinity   SourceID = 100007 // Tower of Infinity (無窮之塔)
-    SourceIDTempleIllusions SourceID = 100008 // Temple of Illusions (勝利)
 )
 
 // MissionGroupType IDs from TextResource
