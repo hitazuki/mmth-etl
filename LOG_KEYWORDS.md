@@ -27,6 +27,27 @@ mementomori-helper 输出的日志格式：`{Name}: {itemName}({itemRarity}) × 
 | 日文 | 名称 |
 | 韩文 | 이름 |
 
+## ResourceStrings.RewardMissionMsg 对照
+
+helper 奖励任务日志来自 `ResourceStrings(.XX).resx` 的 `RewardMissionMsg` 模板，ETL 按模板识别可归因来源。
+
+- 详细记录 JSONL 使用明细 ID：`TextResourceID * 1000000 + amount`，保留奖励数值特征，例如 `Guild(id=111)` + `2000` 为 `111002000`。
+- 统计 JSON 使用聚合 ID：`TextResourceID * 1000000`，按任务类型合并，例如 Guild 聚合为 `111000000`。
+- 前端展示使用聚合文案，不显示奖励数值，例如 `领取 Guild 任务奖励`。
+
+| 任务 | helper 模板 | 日志示例 | 明细 Source ID 示例 | 统计聚合 Source ID | 前端展示（简中） | 前端展示（繁中） |
+|------|-------------|----------|--------------------|-------------------|----------------|----------------|
+| Daily | `Get {0} 's {1} Reward` / `领取 {0} 的 {1} 奖励` | `Get Daily 's 60 Reward` / `领取 Daily 的 60 奖励` | 23214000060 | 23214000000 | 领取 Daily 任务奖励 | 領取 Daily 任務獎勵 |
+| Weekly | `Get {0} 's {1} Reward` / `领取 {0} 的 {1} 奖励` | `Get Weekly 's 80 Reward` / `领取 Weekly 的 80 奖励` | 23215000080 | 23215000000 | 领取 Weekly 任务奖励 | 領取 Weekly 任務獎勵 |
+| Guild | `Get {0} 's {1} Reward` / `领取 {0} 的 {1} 奖励` | `Get Guild 's 2000 Reward` / `领取 Guild 的 2000 奖励` | 111002000 | 111000000 | 领取 Guild 任务奖励 | 領取 Guild 任務獎勵 |
+
+其它语言示例：
+
+| 语言 | Daily 示例 | Weekly 示例 | Guild 示例 |
+|------|------------|-------------|------------|
+| 日文 | `Daily の 60 の報酬を受け取る` | `Weekly の 80 の報酬を受け取る` | `Guild の 2000 の報酬を受け取る` |
+| 韩文 | `일일의 60 보상을 수령합니다` | `주간의 80 보상을 수령합니다` | `Guild의 2000 보상을 수령합니다` |
+
 ## 物品名称
 
 | 英文 (EN)       | 繁中 (TW)   | 简中 (CN)   | 日文 (JA)      | 韩文 (KO)      | 说明        |

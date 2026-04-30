@@ -7,6 +7,8 @@
 | 0 | 未知/未匹配的来源 |
 | 1-99999 | 游戏 TextResource ID |
 | 100000+ | helper 自定义 ID |
+| `TextResourceID * 1000000 + amount` | helper `RewardMissionMsg` 明细来源 ID，保留游戏文本 ID 与奖励数值特征 |
+| `TextResourceID * 1000000` | helper `RewardMissionMsg` 统计聚合来源 ID，按任务类型聚合展示 |
 
 ---
 
@@ -28,11 +30,12 @@
 
 ### helper自定义（RewardMissionMsg 模式）
 
-| Source ID | 别名 | 英文 | 繁中 | 简中 | 日文 | 韩文 |
-|-----------|------|------|------|------|------|------|
-| 23214 | Daily Mission Reward | Get Daily | 领取 Daily | 领取 Daily | Daily の | 일일 의 |
-| 23215 | Weekly Mission Reward | Get Weekly | 领取 Weekly | 领取 Weekly | Weekly の | 주간 의 |
-| 23213 | Main Mission Reward | Get Main | 领取 Main | 领取 Main | Main の | 메인 의 |
+| 任务 | TextResource ID | 明细 Source ID 示例 | 统计聚合 Source ID | 前端展示（简中） | 前端展示（繁中） |
+|------|-----------------|--------------------|-------------------|----------------|----------------|
+| Daily Mission Reward | 23214 | 23214000060 (`23214 * 1000000 + 60`) | 23214000000 | 领取 Daily 任务奖励 | 領取 Daily 任務獎勵 |
+| Weekly Mission Reward | 23215 | 23215000080 (`23215 * 1000000 + 80`) | 23215000000 | 领取 Weekly 任务奖励 | 領取 Weekly 任務獎勵 |
+| Guild Mission Reward | 111 | 111002000 (`111 * 1000000 + 2000`) | 111000000 | 领取 Guild 任务奖励 | 領取 Guild 任務獎勵 |
+| Main Mission Reward | 23213 | 23213 | 23213 | 领取 Main 奖励 | 領取 Main 獎勵 |
 
 ### helper自定义（自建 ID）
 
@@ -41,6 +44,27 @@
 | 100002 | Auto Buy Store Items | Auto Buy Store Items | 自动购买商城物品 | 自動購入ストアアイテム | 자동으로 상점 아이템 구매 |
 | 100004 | Missions Claim All | Missions Claim All | 见下方多文本映射 | 见下方多文本映射 | 见下方多文本映射 |
 | 100005 | Gacha | Gacha | 抽卡 | ガチャ | 가챠 |
+| 111002000 | Guild Mission Reward（明细 ID 示例） | Get Guild 's 2000 Reward | 領取 Guild 的 2000 獎勵 | 领取 Guild 的 2000 奖励 | Guild の 2000 の報酬を受け取る | Guild의 2000 보상을 수령합니다 |
+
+**Guild Mission Reward ID 规则**：
+
+- `Guild` 来自游戏 `TextResource`，ID 为 `111`（`[CommonGuildLabel]`）
+- `2000` 来自 helper `RewardMissionMsg` 日志参数
+- 明细复合 ID 计算：`111 * 1000000 + 2000 = 111002000`
+- 统计聚合 ID 计算：`111 * 1000000 = 111000000`
+- 同类日志可按相同规则扩展，例如 `Guild` + `3000` 为 `111003000`
+
+**RewardMissionMsg 复合 ID 规则**：
+
+- `Daily` 来自游戏 `TextResource`，ID 为 `23214`（`[MissionTabName2]`），例如 `Daily` + `60` 为 `23214000060`
+- `Weekly` 来自游戏 `TextResource`，ID 为 `23215`（`[MissionTabName3]`），例如 `Weekly` + `80` 为 `23215000080`
+- `Main` 当前仍保留裸游戏 `TextResource` ID `23213`
+- 这些细化来源写入详细记录 JSONL 时，`source` 使用 `id:<source_id>` 形式，例如 `id:23214000060`
+- 统计 JSON 的 `sources` 按任务类型聚合，不保留奖励数值：
+  - Daily：`id:23214000000`
+  - Weekly：`id:23215000000`
+  - Guild：`id:111000000`
+- 前端展示同样按聚合来源显示，不显示奖励数值，例如 `领取 Daily 任务奖励`
 
 **Missions Claim All (100004) 多文本映射**：
 
@@ -110,9 +134,13 @@ const (
 
 // Helper custom source IDs (starting from 100002)
 const (
-    SourceIDAutoBuyStore    SourceID = 100002 // Auto Buy Store Items
-    SourceIDMissionsClaimed SourceID = 100004 // Missions Claim All
-    SourceIDGacha           SourceID = 100005 // Gacha (抽卡)
+    SourceIDAutoBuyStore       SourceID = 100002 // Auto Buy Store Items
+    SourceIDMissionsClaimed    SourceID = 100004 // Missions Claim All
+    SourceIDGacha              SourceID = 100005 // Gacha (抽卡)
+    RewardMissionCompositeFactor SourceID = 1000000
+    SourceIDDailyMissionReward SourceID = 23214000060 // Daily 明细示例: 23214 * 1000000 + 60
+    SourceIDWeeklyMissionReward SourceID = 23215000080 // Weekly 明细示例: 23215 * 1000000 + 80
+    SourceIDGuildMissionReward SourceID = 111002000 // Guild 明细示例: 111 * 1000000 + 2000
 )
 
 // MissionGroupType IDs from TextResource
@@ -137,13 +165,29 @@ type ChangeRecord struct {
 
 ### 输出示例
 
+详细记录 JSONL 保留数值特征：
+
 ```json
 {
   "character": "test",
   "timestamp": "2026-04-21T04:55:59+08:00",
   "amount": 100,
-  "source": "Daily Mission Reward",
-  "source_id": 23214
+  "source": "id:23214000060",
+  "source_id": 23214000060
+}
+```
+
+统计 JSON 的 `sources` 使用聚合 ID：
+
+```json
+{
+  "sources": {
+    "id:23214000000": {
+      "source_id": 23214000000,
+      "gain": 100,
+      "consume": 0
+    }
+  }
 }
 ```
 

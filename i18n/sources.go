@@ -13,10 +13,20 @@ type SourceEntry struct {
 	Text  string // The source text in the specific language
 }
 
+// RewardMissionCompositeFactor encodes RewardMissionMsg source IDs as:
+// TextResourceID * 1,000,000 + rewardAmount.
+const RewardMissionCompositeFactor SourceID = 1000000
+
+// RewardMissionSourceID returns a composite ID for helper RewardMissionMsg logs.
+func RewardMissionSourceID(textResourceID SourceID, rewardAmount int) SourceID {
+	return textResourceID*RewardMissionCompositeFactor + SourceID(rewardAmount)
+}
+
 // Game built-in source IDs from TextResource
 const (
 	SourceIDFountainOfPrayers SourceID = 140   // Fountain of Prayers
 	SourceIDOpen              SourceID = 67    // Open (開啟)
+	SourceIDGuild             SourceID = 111   // Guild
 	SourceIDLoginBonus        SourceID = 719   // Login Bonus (签到奖励)
 	SourceIDTempleIllusions   SourceID = 2766  // Temple of Illusions (勝利)
 	SourceIDTowerInfinity     SourceID = 138   // Tower of Infinity (無窮之塔)
@@ -35,9 +45,12 @@ const (
 
 // Helper custom source IDs
 const (
-	SourceIDAutoBuyStore    SourceID = 100002
-	SourceIDMissionsClaimed SourceID = 100004
-	SourceIDGacha           SourceID = 100005
+	SourceIDAutoBuyStore        SourceID = 100002
+	SourceIDMissionsClaimed     SourceID = 100004
+	SourceIDGacha               SourceID = 100005
+	SourceIDDailyMissionReward  SourceID = MissionGroupDailyID*RewardMissionCompositeFactor + 60
+	SourceIDWeeklyMissionReward SourceID = MissionGroupWeeklyID*RewardMissionCompositeFactor + 80
+	SourceIDGuildMissionReward  SourceID = SourceIDGuild*RewardMissionCompositeFactor + 2000
 )
 
 // SourceDefinitions maps languages to their source entries.
@@ -106,32 +119,42 @@ var SourceDefinitions = map[Language][]SourceEntry{
 
 // RewardMissionPattern defines a prefix pattern for reward mission matching.
 type RewardMissionPattern struct {
-	Prefix   string
-	SourceID SourceID
-	Alias    string
+	Prefix         string
+	SourceID       SourceID
+	Alias          string
+	TextResourceID SourceID
+	AmountRegex    string
 }
 
 // rewardMissionDefinitions maps languages to their reward mission patterns.
 var rewardMissionDefinitions = map[Language][]RewardMissionPattern{
 	LangEn: {
-		{"Get Daily ", MissionGroupDailyID, "Daily Mission Reward"},
-		{"Get Weekly ", MissionGroupWeeklyID, "Weekly Mission Reward"},
-		{"Get Main ", MissionGroupMainID, "Main Mission Reward"},
+		{Prefix: "Get Daily ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^Get Daily 's (\d+) Reward$`},
+		{Prefix: "Get Weekly ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^Get Weekly 's (\d+) Reward$`},
+		{Prefix: "Get Main ", SourceID: MissionGroupMainID, Alias: "Main Mission Reward"},
+		{Prefix: "Get Guild ", SourceID: SourceIDGuildMissionReward, Alias: "Guild Mission Reward", TextResourceID: SourceIDGuild, AmountRegex: `^Get Guild 's (\d+) Reward$`},
 	},
 	LangTw: {
-		{"领取 Daily ", MissionGroupDailyID, "Daily Mission Reward"},
-		{"领取 Weekly ", MissionGroupWeeklyID, "Weekly Mission Reward"},
-		{"领取 Main ", MissionGroupMainID, "Main Mission Reward"},
+		{Prefix: "领取 Daily ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^领取 Daily 的 (\d+) 奖励$`},
+		{Prefix: "领取 Weekly ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^领取 Weekly 的 (\d+) 奖励$`},
+		{Prefix: "领取 Main ", SourceID: MissionGroupMainID, Alias: "Main Mission Reward"},
+		{Prefix: "领取 Guild ", SourceID: SourceIDGuildMissionReward, Alias: "Guild Mission Reward", TextResourceID: SourceIDGuild, AmountRegex: `^领取 Guild 的 (\d+) 奖励$`},
 	},
 	LangJa: {
-		{"Daily の ", MissionGroupDailyID, "Daily Mission Reward"},
-		{"Weekly の ", MissionGroupWeeklyID, "Weekly Mission Reward"},
-		{"Main の ", MissionGroupMainID, "Main Mission Reward"},
+		{Prefix: "Daily の ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^Daily の (\d+) (?:報酬|の報酬を受け取る)$`},
+		{Prefix: "Weekly の ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^Weekly の (\d+) (?:報酬|の報酬を受け取る)$`},
+		{Prefix: "Main の ", SourceID: MissionGroupMainID, Alias: "Main Mission Reward"},
+		{Prefix: "Guild の ", SourceID: SourceIDGuildMissionReward, Alias: "Guild Mission Reward", TextResourceID: SourceIDGuild, AmountRegex: `^Guild の (\d+) の報酬を受け取る$`},
 	},
 	LangKo: {
-		{"일일 의 ", MissionGroupDailyID, "Daily Mission Reward"},
-		{"주간 의 ", MissionGroupWeeklyID, "Weekly Mission Reward"},
-		{"메인 의 ", MissionGroupMainID, "Main Mission Reward"},
+		{Prefix: "일일 의 ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^(?:일일 의|일일의|Daily의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "일일의 ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^(?:일일 의|일일의|Daily의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "Daily의 ", SourceID: SourceIDDailyMissionReward, Alias: "Daily Mission Reward", TextResourceID: MissionGroupDailyID, AmountRegex: `^(?:일일 의|일일의|Daily의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "주간 의 ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^(?:주간 의|주간의|Weekly의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "주간의 ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^(?:주간 의|주간의|Weekly의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "Weekly의 ", SourceID: SourceIDWeeklyMissionReward, Alias: "Weekly Mission Reward", TextResourceID: MissionGroupWeeklyID, AmountRegex: `^(?:주간 의|주간의|Weekly의) (\d+) (?:보상|보상을 수령합니다)$`},
+		{Prefix: "메인 의 ", SourceID: MissionGroupMainID, Alias: "Main Mission Reward"},
+		{Prefix: "Guild의 ", SourceID: SourceIDGuildMissionReward, Alias: "Guild Mission Reward", TextResourceID: SourceIDGuild, AmountRegex: `^Guild의 (\d+) 보상을 수령합니다$`},
 	},
 }
 

@@ -59,8 +59,26 @@ func (a *ChangeAggregator) AddRecord(record types.ChangeRecord) {
 	a.recordCount++
 }
 
-// getSourceKey 计算聚合 key：source_id 非 0 且非 Gacha/Open 时按 ID 聚合
+func rewardMissionAggregateID(sourceID int) int {
+	if sourceID < int(i18n.RewardMissionCompositeFactor) {
+		return 0
+	}
+
+	baseID := sourceID / int(i18n.RewardMissionCompositeFactor)
+	switch i18n.SourceID(baseID) {
+	case i18n.MissionGroupDailyID, i18n.MissionGroupWeeklyID, i18n.SourceIDGuild:
+		return baseID * int(i18n.RewardMissionCompositeFactor)
+	default:
+		return 0
+	}
+}
+
+// getSourceKey 计算聚合 key：RewardMission 复合 ID 按来源前缀聚合，其它可识别 ID 按 ID 聚合
 func getSourceKey(record types.ChangeRecord) string {
+	if aggregateID := rewardMissionAggregateID(record.SourceID); aggregateID != 0 {
+		return fmt.Sprintf("id:%d", aggregateID)
+	}
+
 	if record.SourceID != 0 && record.SourceID != int(i18n.SourceIDGacha) && record.SourceID != int(i18n.SourceIDOpen) {
 		return fmt.Sprintf("id:%d", record.SourceID)
 	}
@@ -70,17 +88,21 @@ func getSourceKey(record types.ChangeRecord) string {
 // updateChangeStats 更新 ChangeStats 结构（通用方法）
 func updateChangeStats(stats *types.ChangeStats, record types.ChangeRecord) {
 	sourceKey := getSourceKey(record)
+	sourceID := record.SourceID
+	if aggregateID := rewardMissionAggregateID(record.SourceID); aggregateID != 0 {
+		sourceID = aggregateID
+	}
 
 	if record.Amount > 0 {
 		stats.Gain += record.Amount
 		src := stats.Sources[sourceKey]
-		src.SourceID = record.SourceID
+		src.SourceID = sourceID
 		src.Gain += record.Amount
 		stats.Sources[sourceKey] = src
 	} else {
 		stats.Consume += -record.Amount
 		src := stats.Sources[sourceKey]
-		src.SourceID = record.SourceID
+		src.SourceID = sourceID
 		src.Consume += -record.Amount
 		stats.Sources[sourceKey] = src
 	}

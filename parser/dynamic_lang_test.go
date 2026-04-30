@@ -113,17 +113,20 @@ func TestSourceMatchingWithLogPatterns(t *testing.T) {
 		{i18n.LangEn, "Login", i18n.SourceIDLoginBonus, "EN Login"},
 		{i18n.LangEn, "Auto Buy Store Items", i18n.SourceIDAutoBuyStore, "EN Auto Buy"},
 		{i18n.LangEn, "Fountain of Prayers: 100 diamonds", i18n.SourceIDFountainOfPrayers, "EN Fountain"},
-		{i18n.LangEn, "Get Daily 's 60 Reward", i18n.MissionGroupDailyID, "EN Daily Reward"},
+		{i18n.LangEn, "Get Daily 's 60 Reward", i18n.SourceIDDailyMissionReward, "EN Daily Reward"},
+		{i18n.LangEn, "Get Guild 's 2000 Reward", i18n.SourceIDGuildMissionReward, "EN Guild Reward"},
 
 		// Chinese patterns
 		{i18n.LangTw, "簽到獎勵:", i18n.SourceIDLoginBonus, "TW Login"},
 		{i18n.LangTw, "自动购买商城物品", i18n.SourceIDAutoBuyStore, "TW Auto Buy"},
 		{i18n.LangTw, "祈願之泉: 100 diamonds", i18n.SourceIDFountainOfPrayers, "TW Fountain"},
-		{i18n.LangTw, "领取 Daily 的 60 奖励", i18n.MissionGroupDailyID, "TW Daily Reward"},
+		{i18n.LangTw, "领取 Daily 的 60 奖励", i18n.SourceIDDailyMissionReward, "TW Daily Reward"},
+		{i18n.LangTw, "领取 Guild 的 2000 奖励", i18n.SourceIDGuildMissionReward, "TW Guild Reward"},
 
 		// Japanese patterns
 		{i18n.LangJa, "ログイン", i18n.SourceIDLoginBonus, "JA Login"},
 		{i18n.LangJa, "祈りの泉: 100 diamonds", i18n.SourceIDFountainOfPrayers, "JA Fountain"},
+		{i18n.LangJa, "Guild の 2000 の報酬を受け取る", i18n.SourceIDGuildMissionReward, "JA Guild Reward"},
 	}
 
 	for _, tt := range tests {

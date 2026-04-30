@@ -1,9 +1,11 @@
 package parser
 
 import (
+	"fmt"
 	"mmth-etl/i18n"
 	"mmth-etl/types"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -63,8 +65,16 @@ func findSource(source string) (i18n.SourceEntry, bool) {
 	// Reward mission patterns
 	for _, pattern := range currentCache.rewardPatterns {
 		if strings.HasPrefix(source, pattern.Prefix) {
+			sourceID := pattern.SourceID
+			if pattern.TextResourceID != 0 && pattern.AmountRegex != "" {
+				if matches := regexp.MustCompile(pattern.AmountRegex).FindStringSubmatch(source); len(matches) > 1 {
+					if amount, err := strconv.Atoi(matches[1]); err == nil {
+						sourceID = i18n.RewardMissionSourceID(pattern.TextResourceID, amount)
+					}
+				}
+			}
 			return i18n.SourceEntry{
-				ID:    pattern.SourceID,
+				ID:    sourceID,
 				Alias: pattern.Alias,
 				Text:  pattern.Prefix,
 			}, true
@@ -106,6 +116,9 @@ func MapSourceWithID(source string) (alias string, sourceID i18n.SourceID) {
 
 	// Check mapping table
 	if entry, ok := findSource(source); ok {
+		if entry.ID >= i18n.RewardMissionCompositeFactor {
+			return fmt.Sprintf("id:%d", entry.ID), entry.ID
+		}
 		return entry.Alias, entry.ID
 	}
 
