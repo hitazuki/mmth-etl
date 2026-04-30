@@ -144,7 +144,23 @@ func (d *Detector) DetectSingleLine(line string) (Language, int) {
 // single highest-scoring language. Ambiguous lines are ignored so they do not
 // temporarily flip the parser into the wrong language.
 func (d *Detector) DetectSingleLineUnique(line string) (Language, int) {
-	scores := d.scoreLine(line)
+	return BestLanguageFromScores(d.scoreLine(line))
+}
+
+func (d *Detector) scoreLine(line string) map[Language]int {
+	scores := make(map[Language]int)
+	for lang, patterns := range d.signatures {
+		for _, sig := range patterns {
+			if sig.pattern.MatchString(line) {
+				scores[lang] += sig.weight
+			}
+		}
+	}
+	return scores
+}
+
+// BestLanguageFromScores 返回足够明确的最高分语言，分差不足时视为无法判断。
+func BestLanguageFromScores(scores map[Language]int) (Language, int) {
 	var maxLang Language
 	maxScore := 0
 	secondScore := 0
@@ -162,18 +178,6 @@ func (d *Detector) DetectSingleLineUnique(line string) (Language, int) {
 		return "", 0
 	}
 	return maxLang, maxScore
-}
-
-func (d *Detector) scoreLine(line string) map[Language]int {
-	scores := make(map[Language]int)
-	for lang, patterns := range d.signatures {
-		for _, sig := range patterns {
-			if sig.pattern.MatchString(line) {
-				scores[lang] += sig.weight
-			}
-		}
-	}
-	return scores
 }
 
 // LanguageScores returns the language scores for a batch of lines.

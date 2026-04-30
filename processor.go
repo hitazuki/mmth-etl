@@ -63,11 +63,6 @@ func (p *LogProcessor) Process(
 		return p.checkpoint
 	}
 
-	_, err = file.Seek(startPos, 0)
-	if err != nil {
-		log.Fatalf("文件定位失败: %v", err)
-	}
-
 	// Source context per character
 	lastSourceByCharacter := make(map[string]string)
 
@@ -83,6 +78,12 @@ func (p *LogProcessor) Process(
 	var scoreAccumulator *i18n.ScoreAccumulator
 	if p.dynamicLang.Enabled {
 		scoreAccumulator = i18n.NewScoreAccumulator(p.detector, windowSize)
+		p.prewarmLanguage(file, startPos, windowSize)
+	}
+
+	_, err = file.Seek(startPos, 0)
+	if err != nil {
+		log.Fatalf("文件定位失败: %v", err)
 	}
 
 	// Read with buffer
@@ -201,6 +202,52 @@ func (p *LogProcessor) Process(
 	}
 
 	return lastLogTime
+}
+
+// prewarmLanguage 在正式扫描前抽样起始位置后的有效日志，尽早确定初始语言。
+func (p *LogProcessor) prewarmLanguage(file *os.File, startPos int64, sampleSize int) {
+	if sampleSize <= 0 {
+		return
+	}
+
+	_, err := file.Seek(startPos, 0)
+	if err != nil {
+		log.Printf("初始语言预热定位失败: %v", err)
+		return
+	}
+
+	scanner := bufio.NewScanner(file)
+	buf := make([]byte, 0, 256*1024)
+	scanner.Buffer(buf, 1024*1024)
+
+	scoreAccumulator := i18n.NewScoreAccumulator(p.detector, sampleSize)
+	validCount := 0
+	for scanner.Scan() && validCount < sampleSize {
+		parsed := parser.ParseLogLine(scanner.Text())
+		if !parsed.IsValid {
+			continue
+		}
+		if p.checkpoint != "" && parsed.Timestamp != "" && parsed.Timestamp <= p.checkpoint {
+			continue
+		}
+
+		validCount++
+		scoreAccumulator.AddLine(parsed.Body)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("初始语言预热读取失败: %v", err)
+		return
+	}
+
+	lang, score := i18n.BestLanguageFromScores(scoreAccumulator.GetScores())
+	currentLang := p.i18nMgr.CurrentLanguage()
+	if lang == "" || lang == currentLang {
+		return
+	}
+
+	p.i18nMgr.SetLanguage(lang)
+	log.Printf("初始语言预热: %s -> %s (得分: %d)", currentLang, lang, score)
 }
 
 // checkLanguageSwitch checks if language should be switched based on accumulated scores.

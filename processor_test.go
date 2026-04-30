@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-func TestProcessUsesLineLanguageBeforeWindowSwitch(t *testing.T) {
+func TestProcessPrewarmsLanguageBeforeWindowSwitch(t *testing.T) {
 	dir := t.TempDir()
 	logPath := filepath.Join(dir, "app.log")
 	content := "[2026-04-30 00:50:15] [test(Lv1)] already processed\n" +
-		"[2026-04-30 01:50:55] [test(Lv1)] 进入 時空洞窟\n"
+		"[2026-04-30 01:50:55] [test(Lv1)] \u8fdb\u5165 \u6642\u7a7a\u6d1e\u7a9f\n"
 	if err := os.WriteFile(logPath, []byte(content), 0600); err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestProcessUsesLineLanguageBeforeWindowSwitch(t *testing.T) {
 	if got := caveAgg.RecordCount(); got != 1 {
 		t.Fatalf("cave records = %d, want 1", got)
 	}
-	if got := mgr.CurrentLanguage(); got != i18n.LangEn {
-		t.Fatalf("stable language = %s, want %s", got, i18n.LangEn)
+	if got := mgr.CurrentLanguage(); got != i18n.LangTw {
+		t.Fatalf("stable language = %s, want %s", got, i18n.LangTw)
 	}
 }

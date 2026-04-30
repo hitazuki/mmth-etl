@@ -99,7 +99,7 @@ mmth-etl/
 
 | 模式       | 说明                                 | 性能   | 适用场景           |
 |------------|--------------------------------------|--------|--------------------|
-| dynamic    | 运行时持续检测，自动切换（默认）     | 优     | 通用场景           |
+| dynamic    | 启动预热 + 运行时持续检测，自动切换（默认） | 优 | 通用场景           |
 | auto       | 启动时检测一次，之后固定             | 优     | 日志语言确定不变   |
 | 固定语言   | 全程使用指定语言正则                 | 最优   | 明确知道日志语言   |
 
@@ -107,18 +107,24 @@ mmth-etl/
 
 **实现原理：**
 
-使用 `ScoreAccumulator` 增量累加各语言得分：
+动态模式分三层处理语言：
+
+1. 启动预热：从断点位置后抽样最多 `window` 条有效日志，先确定初始语言
+2. 行级提示：遇到高置信单行特征时，临时使用该语言解析当前行
+3. 滑动窗口：使用 `ScoreAccumulator` 增量累加各语言得分，稳定切换全局语言
+
+`ScoreAccumulator` 只记录高置信语言得分：
 
 ```go
 // i18n/detector.go
 type ScoreAccumulator struct {
-    scores      map[Language]int    // 当前累计得分
-    scoreWindow []Language          // 滑动窗口
+    scores      map[Language]int     // 当前累计得分
+    scoreWindow []languageScore      // 滑动窗口
 }
 
 // 每行调用，O(1) 开销
 func (a *ScoreAccumulator) AddLine(line string) Language {
-    lang, score := detector.DetectSingleLine(line)
+    lang, score := detector.DetectSingleLineUnique(line)
     a.scores[lang] += score  // 增量累加
     // 滑动窗口：移除过期得分
     ...
@@ -127,12 +133,12 @@ func (a *ScoreAccumulator) AddLine(line string) Language {
 
 **性能对比：**
 
-| 方法               | 额外开销         | 总匹配次数（4语言） |
-|--------------------|------------------|---------------------|
-| 无切换             | 0                | 9                   |
-| 动态检测（优化前） | O(W×F) 定期扫描  | ~16                 |
-| 动态检测（优化后） | O(1) 累加        | ~9                  |
-| 全语言匹配         | 0                | 36                  |
+| 方法               | 额外开销              | 总匹配次数（4语言） |
+|--------------------|-----------------------|---------------------|
+| 无切换             | 0                     | 9                   |
+| 动态检测（优化前） | O(W×F) 定期扫描       | ~16                 |
+| 动态检测（当前）   | 启动 O(window)，运行期 O(1) | ~9                  |
+| 全语言匹配         | 0                     | 36                  |
 
 **参数配置：**
 
